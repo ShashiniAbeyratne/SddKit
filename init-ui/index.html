@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDD-Kit — Project Init</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent-dim: #1f3a5f;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 80px;
+    }
+
+    header { text-align: center; margin-bottom: 48px; }
+    header h1 { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.5px; }
+    header h1 span { color: var(--accent); }
+    header p { color: var(--text-muted); margin-top: 8px; font-size: 0.9rem; }
+
+    /* Progress */
+    .progress-bar { width: 100%; max-width: 680px; margin-bottom: 32px; }
+    .progress-steps { display: flex; align-items: center; }
+
+    .step-dot {
+      display: flex; flex-direction: column; align-items: center;
+      flex: 1; position: relative; cursor: default;
+    }
+    .step-dot:not(:last-child)::after {
+      content: ''; position: absolute; top: 14px; left: 50%;
+      width: 100%; height: 2px; background: var(--border); z-index: 0; transition: background 0.3s;
+    }
+    .step-dot.done:not(:last-child)::after { background: var(--accent); }
+
+    .dot-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 600; color: var(--text-muted);
+      position: relative; z-index: 1; transition: all 0.3s;
+    }
+    .step-dot.active .dot-circle { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); }
+    .step-dot.done  .dot-circle  { border-color: var(--success); background: var(--success); color: #000; }
+
+    .dot-label { font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; white-space: nowrap; }
+    .step-dot.active .dot-label { color: var(--accent); }
+    .step-dot.done   .dot-label { color: var(--success); }
+
+    /* Card */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px;
+      width: 100%; max-width: 680px;
+      animation: slideIn 0.25s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 6px; }
+    .hint { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+
+    /* Options */
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 16px; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: flex-start; gap: 12px; background: var(--surface2);
+    }
+    .option:hover  { border-color: var(--accent); background: var(--accent-dim); }
+    .option.selected { border-color: var(--accent); background: var(--accent-dim); box-shadow: 0 0 0 1px var(--accent); }
+
+    .option-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .option-text strong { display: block; font-size: 0.9rem; margin-bottom: 3px; }
+    .option-text span { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+
+    .option-badge {
+      margin-left: auto; font-size: 0.65rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      background: var(--accent-dim); color: var(--accent);
+      white-space: nowrap; flex-shrink: 0; align-self: flex-start; margin-top: 2px;
+    }
+    .option-badge.standard  { background: #1a3a1a; color: var(--success); }
+    .option-badge.enterprise { background: #3a2a0a; color: var(--warning); }
+
+    /* Services */
+    .service-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .service-item { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; }
+    .service-item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .service-name { font-size: 0.85rem; font-weight: 600; flex: 1; }
+    .service-remove { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; padding: 0 4px; opacity: 0.6; }
+    .service-remove:hover { opacity: 1; }
+
+    .arch-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .arch-pill {
+      padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border);
+      font-size: 0.72rem; cursor: pointer; transition: all 0.15s; background: var(--surface);
+    }
+    .arch-pill:hover { border-color: var(--accent); }
+    .arch-pill.selected { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+    .add-service-row { display: flex; gap: 10px; }
+    .add-service-row input {
+      flex: 1; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 14px;
+      color: var(--text); font-size: 0.85rem; outline: none;
+    }
+    .add-service-row input:focus { border-color: var(--accent); }
+    .add-service-row input::placeholder { color: var(--text-muted); }
+
+    /* Buttons */
+    .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; }
+    button { padding: 10px 20px; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: #79b8ff; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-secondary { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-secondary:hover { color: var(--text); border-color: var(--text-muted); }
+    .btn-small { padding: 8px 14px; font-size: 0.78rem; }
+
+    /* Output */
+    pre {
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; font-size: 0.78rem; line-height: 1.6;
+      overflow-x: auto; white-space: pre-wrap; color: #a5d6ff;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+    }
+    .summary-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 14px; font-size: 0.75rem; color: var(--text-muted); }
+    .chip strong { color: var(--text); }
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+    .skip-note { font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+    /* Text inputs */
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+    .field input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 14px;
+      color: var(--text); font-size: 0.88rem; outline: none;
+    }
+    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: var(--text-muted); }
+    .field .field-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; }
+
+    .path-preview {
+      font-size: 0.78rem; color: var(--accent);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 8px 12px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      margin-top: 12px; word-break: break-all;
+    }
+
+    /* OS toggle */
+    .os-toggle { display: flex; gap: 6px; margin-bottom: 16px; }
+    .os-btn {
+      padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border);
+      font-size: 0.75rem; cursor: pointer; background: var(--surface2); color: var(--text-muted);
+    }
+    .os-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+    [x-cloak] { display: none !important; }
+
+    @media (max-width: 500px) {
+      .card { padding: 20px; }
+      .dot-label { display: none; }
+    }
+  </style>
+</head>
+<body x-data="wizard()" x-cloak>
+
+<header>
+  <h1>SDD<span>-Kit</span></h1>
+  <p>Select your stack to scaffold a best-practice project structure</p>
+</header>
+
+<!-- ── Progress bar ─────────────────────────────────────────────────────── -->
+<div class="progress-bar">
+  <div class="progress-steps">
+    <template x-for="(step, i) in visibleSteps" :key="step.id">
+      <div class="step-dot" :class="{ active: i === currentStep, done: i < currentStep }">
+        <div class="dot-circle">
+          <span x-show="i >= currentStep" x-text="i + 1"></span>
+          <span x-show="i < currentStep">✓</span>
+        </div>
+        <span class="dot-label" x-text="step.label"></span>
+      </div>
+    </template>
+  </div>
+</div>
+
+<!-- ── Step: Project ─────────────────────────────────────────────────────── -->
+<div class="card" x-show="currentStepId === 'project'" x-transition>
+  <h2>Project details</h2>
+  <p class="hint">Set a name and location for your new project.</p>
+
+  <div class="field">
+    <label>Project name</label>
+    <input type="text" x-model="state.projectName" placeholder="e.g. LoanPlatform, MyApp" @input="slugifyName()" />
+    <p class="field-hint">Used for solution/folder names. No spaces — use PascalCase or kebab-case.</p>
+  </div>
+
+  <div class="field">
+    <label>Parent directory <span style="color:var(--text-muted)">(where the project folder will be created)</span></label>
+
+    <div class="os-toggle">
+      <button class="os-btn" :class="{ active: os === 'win' }" @click="os = 'win'">Windows</button>
+      <button class="os-btn" :class="{ active: os === 'mac' }" @click="os = 'mac'">macOS / Linux</button>
+    </div>
+
+    <input type="text" x-model="state.parentDir"
+           :placeholder="os === 'win' ? 'C:\\Users\\you\\Projects' : '/Users/you/Projects'" />
+    <p class="field-hint">The project folder will be created inside this directory.</p>
+  </div>
+
+  <div class="path-preview" x-show="state.projectName && state.parentDir">
+    <span x-text="fullPath()"></span>
+  </div>
+
+  <div class="actions">
+    <div></div>
+    <button class="btn-primary" :disabled="!state.projectName || !state.parentDir" @click="next()">Continue →</button>
+  </div>
+</div>
+
+<!-- ── Step: Frontend ────────────────────────────────────────────────────── -->
+<div class="card" x-show="currentStepId === 'frontend'" x-transition>
+  <h2>Frontend</h2>
+  <p class="hint">What client-side framework will you use?</p>
+  <div class="options">
+    <template x-for="opt in steps.frontend.options" :key="opt.value">
+      <div class="option" :class="{ selected: state.frontend === opt.value }" @click="state.frontend = opt.value">
+        <span class="option-icon" x-text="opt.icon"></span>
+        <div class="option-text">
+          <strong x-text="opt.label"></strong>
+          <span x-text="opt.desc"></span>
+        </div>
+      </div>
+    </template>
+  </div>
+  <div class="actions">
+    <button class="btn-secondary" @click="back()">← Back</button>
+    <button class="btn-primary" :disabled="!state.frontend" @click="next()">Continue →</button>
+  </div>
+</div>
+
+<!-- ── Step: Backend ─────────────────────────────────────────────────────── -->
+<div class="card" x-show="currentStepId === 'backend'" x-transition>
+  <h2>Backend</h2>
+  <p class="hint">What server-side stack will you use?</p>
+  <div class="options">
+    <template x-for="opt in steps.backend.options" :key="opt.value">
+      <div class="option" :class="{ selected: state.backend === opt.value }" @click="state.backend = opt.value">
+        <span class="option-icon" x-text="opt.icon"></span>
+        <div class="option-text">
+          <strong x-text="opt.label"></strong>
+          <span x-text="opt.desc"></span>
+        </div>
+      </div>
+    </template>
+  </div>
+  <div class="actions">
+    <button class="btn-secondary" @click="back()">← Back</button>
+    <button class="btn-primary" :disabled="!state.backend" @click="next()">Continue →</button>
+  </div>
+</div>
+
+<!-- ── Step: Services (microservice only) ───────────────────────────────── -->
+<div class="card" x-show="currentStepId === 'services'" x-transition>
+  <h2>Microservices</h2>
+  <p class="hint">Add each service and choose its internal architecture. Clean Architecture for complex domain logic; Vertical Slice for CRUD-heavy or event-driven services.</p>
+
+  <div class="service-list">
+    <template x-for="(svc, i) in state.services" :key="i">
+      <div class="service-item">
+        <div class="service-item-header">
+          <span class="service-name">📦 <span x-text="svc.name"></span></span>
+          <button class="service-remove" @click="state.services.splice(i, 1)">✕</button>
+        </div>
+        <div class="arch-pills">
+          <template x-for="arch in serviceArchOptions" :key="arch.value">
+            <div class="arch-pill" :class="{ selected: svc.arch === arch.value }" @click="svc.arch = arch.value">
+              <span x-text="arch.label"></span>
+              <span style="opacity:0.6"> · <span x-text="arch.hint"></span></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <div class="add-service-row">
+    <input type="text" x-model="newServiceName" placeholder="e.g. LoanApplication, Notifications…"
+           @keydown.enter="addService()" />
+    <button class="btn-secondary btn-small" @click="addService()">+ Add service</button>
+  </div>
+
+  <div class="actions">
+    <button class="btn-secondary" @click="back()">← Back</button>
+    <button class="btn-primary" @click="next()">Continue →</button>
+  </div>
+</div>
+
+<!-- ── Step: Database ────────────────────────────────────────────────────── -->
+<div class="card" x-show="currentStepId === 'database'" x-transition>
+  <h2>Database</h2>
+  <p class="hint">Primary database. For microservices, this is the default per-service database — you can customise per service.</p>
+  <div class="options">
+    <template x-for="opt in steps.database.options" :key="opt.value">
+      <div class="option" :class="{ selected: state.database === opt.value }" @click="state.database = opt.value">
+        <span class="option-icon" x-text="opt.icon"></span>
+        <div class="option-text">
+          <strong x-text="opt.label"></strong>
+          <span x-text="opt.desc"></span>
+        </div>
+        <span x-show="opt.badge" class="option-badge" :class="opt.badgeStyle" x-text="opt.badge"></span>
+      </div>
+    </template>
+  </div>
+  <div class="actions">
+    <button class="btn-secondary" @click="back()">← Back</button>
+    <button class="btn-primary" :disabled="!state.database" @click="next()">Continue →</button>
+  </div>
+</div>
+
+<!-- ── Step: Auth ─────────────────────────────────────────────────────────── -->
+<div class="card" x-show="currentStepId === 'auth'" x-transition>
+  <h2>Authentication</h2>
+  <p class="hint">How will users authenticate?</p>
+  <div class="options">
+    <template x-for="opt in steps.auth.options" :key="opt.value">
+      <div class="option" :class="{ selected: state.auth === opt.value }" @click="state.auth = opt.value">
+        <span class="option-icon" x-text="opt.icon"></span>
+        <div class="option-text">
+          <strong x-text="opt.label"></strong>
+          <span x-text="opt.desc"></span>
+        </div>
+      </div>
+    </template>
+  </div>
+  <div class="actions">
+    <button class="btn-secondary" @click="back()">← Back</button>
+    <button class="btn-primary" :disabled="!state.auth" @click="next()">Continue →</button>
+  </div>
+</div>
+
+<!-- ── Step: Deployment ──────────────────────────────────────────────────── -->
+<div class="card" x-show="currentStepId === 'deploy'" x-transition>
+  <h2>Deployment Pattern</h2>
+  <p class="hint">Both a frontend and backend are selected. How will they be deployed?</p>
+  <div class="options">
+    <template x-for="opt in steps.deploy.options" :key="opt.value">
+      <div class="option" :class="{ selected: state.deployment === opt.value }" @click="state.deployment = opt.value">
+        <span class="option-icon" x-text="opt.icon"></span>
+        <div class="option-text">
+          <strong x-text="opt.label"></strong>
+          <span x-text="opt.desc"></span>
+        </div>
+        <span x-show="opt.badge" class="option-badge" :class="opt.badgeStyle" x-text="opt.badge"></span>
+      </div>
+    </template>
+  </div>
+  <div class="actions">
+    <button class="btn-secondary" @click="back()">← Back</button>
+    <button class="btn-primary" :disabled="!state.deployment" @click="next()">Continue →</button>
+  </div>
+</div>
+
+<!-- ── Step: Output ──────────────────────────────────────────────────────── -->
+<div class="card" x-show="currentStepId === 'output'" x-transition>
+  <h2>✅ Stack configured</h2>
+
+  <div class="summary-chips" style="margin-top:16px">
+    <div class="chip" x-show="state.projectName"><strong>Project </strong><span x-text="state.projectName"></span></div>
+    <div class="chip" x-show="state.parentDir"><strong>Location </strong><span x-text="fullPath()"></span></div>
+    <div class="chip"><strong>Frontend </strong><span x-text="labels.frontend[state.frontend] || '—'"></span></div>
+    <div class="chip"><strong>Backend </strong><span x-text="labels.backend[state.backend] || '—'"></span></div>
+    <div class="chip"><strong>Database </strong><span x-text="labels.database[state.database] || '—'"></span></div>
+    <div class="chip"><strong>Auth </strong><span x-text="labels.auth[state.auth] || '—'"></span></div>
+    <div class="chip" x-show="state.deployment"><strong>Deploy </strong><span x-text="labels.deployment[state.deployment]"></span></div>
+    <div class="chip" x-show="state.backend === 'microservice' && state.services.length > 0">
+      <strong>Services </strong><span x-text="state.services.length + ' defined'"></span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Setup command -->
+  <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">1. Run this to create and open the project</p>
+  <div style="position:relative">
+    <pre x-text="setupCmd()"></pre>
+    <button class="btn-secondary btn-small"
+            style="position:absolute; top:10px; right:10px;"
+            @click="copyCmd()">Copy</button>
+  </div>
+  <span x-show="copiedCmd" style="font-size:0.75rem; color:var(--success); display:block; margin-top:4px;">Copied!</span>
+
+  <div class="divider"></div>
+
+  <!-- project.md -->
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+    <p style="font-size:0.8rem; color:var(--text-muted);">2. Save this as <code style="color:var(--accent)">.sdd/memory/project.md</code></p>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span x-show="copied" style="font-size:0.75rem; color:var(--success)">Copied!</span>
+      <button class="btn-secondary btn-small" @click="copy()">Copy</button>
+    </div>
+  </div>
+
+  <pre x-text="projectMd()"></pre>
+
+  <div class="divider"></div>
+
+  <p class="skip-note">3. Open the project in Claude Code and run <code style="color:var(--accent)">/sdd-constitution</code></p>
+
+  <div class="actions">
+    <button class="btn-secondary" @click="back()">← Back</button>
+    <button class="btn-primary" @click="reset()">Start over</button>
+  </div>
+</div>
+
+<script>
+function wizard() {
+  return {
+    // ── State ────────────────────────────────────────────────────────────
+    currentStep: 0,
+    newServiceName: '',
+    copied: false,
+    copiedCmd: false,
+    os: 'win',
+
+    state: {
+      projectName: '',
+      parentDir:   '',
+      frontend:    null,
+      backend:     null,
+      services:    [],   // [{ name, arch }]
+      database:    null,
+      auth:        null,
+      deployment:  null,
+    },
+
+    // ── Step data (options live here, not in the HTML) ───────────────────
+    steps: {
+      frontend: {
+        options: [
+          { value: 'none',    icon: '⬛', label: 'None',    desc: 'API only — no frontend in this project' },
+          { value: 'react',   icon: '⚛️', label: 'React',   desc: 'Vite + TypeScript + TailwindCSS + React Router + Zustand + TanStack Query' },
+          { value: 'angular', icon: '🅰️', label: 'Angular', desc: 'Angular CLI + TypeScript + Angular Material + NgRx Signals + Reactive Forms' },
+        ],
+      },
+      backend: {
+        options: [
+          { value: 'none',         icon: '⬛', label: 'None',              desc: 'Frontend only — static site or JAMstack' },
+          { value: 'monolith',     icon: '🏛️', label: 'C# Monolith',       desc: 'Clean Architecture · jasontaylordev pattern · MediatR + FluentValidation + EF Core' },
+          { value: 'microservice', icon: '🔬', label: 'C# Microservice',   desc: '.NET Aspire + YARP + MassTransit + RabbitMQ — per-service Clean Architecture or Vertical Slice' },
+          { value: 'node',         icon: '🟩', label: 'Node.js',           desc: 'Express + TypeScript + Prisma + Zod' },
+        ],
+      },
+      database: {
+        options: [
+          { value: 'none',      icon: '⬛', label: 'None',        desc: 'No database' },
+          { value: 'postgres',  icon: '🐘', label: 'PostgreSQL',  desc: 'EF Core + Npgsql (.NET) · Prisma (Node) — recommended for most new projects', badge: 'Recommended', badgeStyle: '' },
+          { value: 'sqlserver', icon: '🗄️', label: 'SQL Server',  desc: 'EF Core + SqlServer provider — common in enterprise .NET shops' },
+          { value: 'mongodb',   icon: '🍃', label: 'MongoDB',     desc: 'MongoDB.Driver (.NET) · Mongoose (Node) — document store' },
+          { value: 'sqlite',    icon: '📦', label: 'SQLite',      desc: 'EF Core + SQLite — dev and testing only, not for production', badge: 'Dev only', badgeStyle: 'enterprise' },
+        ],
+      },
+      auth: {
+        options: [
+          { value: 'none',     icon: '🔓', label: 'None',                    desc: 'No authentication' },
+          { value: 'identity', icon: '👤', label: 'ASP.NET Core Identity',   desc: 'Built-in user management — simple login/register, roles, no SSO needed' },
+          { value: 'duende',   icon: '🏢', label: 'Duende IdentityServer',   desc: 'Full OAuth2 / OIDC — multiple clients, SSO, external identity providers' },
+          { value: 'auth0',    icon: '🌐', label: 'Auth0 / Okta',            desc: 'Managed auth provider — fastest path to production, handles everything externally' },
+          { value: 'jwt',      icon: '🔑', label: 'JWT only',                desc: 'Stateless Bearer tokens — API-to-API or mobile clients, no session management' },
+        ],
+      },
+      deploy: {
+        options: [
+          { value: 'cdn',  icon: '🌍', label: 'CDN + Separate API', badge: 'Industry standard', badgeStyle: 'standard',
+            desc: 'FE deploys to Azure Static Web Apps / Vercel / Netlify. API deploys to App Service / ECS. CORS always on. Independent pipelines.' },
+          { value: 'host', icon: '🏠', label: '.Host Project',      badge: 'Enterprise .NET',  badgeStyle: 'enterprise',
+            desc: 'FE lives in ClientApp/ inside the .Host project. ng build → wwwroot. One process, one pipeline, no CORS in production.' },
+        ],
+      },
+    },
+
+    serviceArchOptions: [
+      { value: 'clean',    label: 'Clean Architecture', hint: 'Complex domain' },
+      { value: 'vertical', label: 'Vertical Slice',     hint: 'CRUD / events'  },
+      { value: 'hybrid',   label: 'Hybrid',             hint: 'Best of both'   },
+    ],
+
+    // ── Display labels for output ────────────────────────────────────────
+    labels: {
+      frontend:   { none: 'None', react: '⚛️ React', angular: '🅰️ Angular' },
+      backend:    { none: 'None', monolith: '🏛️ C# Monolith', microservice: '🔬 C# Microservice', node: '🟩 Node.js' },
+      database:   { none: 'None', postgres: '🐘 PostgreSQL', sqlserver: '🗄️ SQL Server', mongodb: '🍃 MongoDB', sqlite: '📦 SQLite' },
+      auth:       { none: 'None', identity: '👤 ASP.NET Identity', duende: '🏢 Duende IdentityServer', auth0: '🌐 Auth0/Okta', jwt: '🔑 JWT' },
+      deployment: { cdn: '🌍 CDN + Separate API', host: '🏠 .Host Project' },
+    },
+
+    // ── Computed: which steps are visible right now ──────────────────────
+    get visibleSteps() {
+      return [
+        { id: 'project',  label: 'Project'  },
+        { id: 'frontend', label: 'Frontend' },
+        { id: 'backend',  label: 'Backend'  },
+        ...(this.state.backend === 'microservice' ? [{ id: 'services', label: 'Services' }] : []),
+        ...(this.state.backend && this.state.backend !== 'none' ? [{ id: 'database', label: 'Database' }] : []),
+        ...(this.state.backend && this.state.backend !== 'none' ? [{ id: 'auth',     label: 'Auth'     }] : []),
+        ...(this.state.frontend && this.state.frontend !== 'none' && this.state.backend && this.state.backend !== 'none'
+          ? [{ id: 'deploy', label: 'Deploy' }] : []),
+        { id: 'output', label: 'Output' },
+      ];
+    },
+
+    get currentStepId() {
+      return this.visibleSteps[this.currentStep]?.id;
+    },
+
+    // ── Navigation ───────────────────────────────────────────────────────
+    next() {
+      if (this.currentStep < this.visibleSteps.length - 1) this.currentStep++;
+    },
+
+    back() {
+      if (this.currentStep > 0) this.currentStep--;
+    },
+
+    reset() {
+      this.state = { projectName: '', parentDir: '', frontend: null, backend: null, services: [], database: null, auth: null, deployment: null };
+      this.currentStep = 0;
+    },
+
+    // ── Project helpers ──────────────────────────────────────────────────
+    slugifyName() {
+      // strip spaces and special chars, keep PascalCase/kebab
+      this.state.projectName = this.state.projectName.replace(/[^a-zA-Z0-9\-_.]/g, '');
+    },
+
+    fullPath() {
+      const sep = this.os === 'win' ? '\\' : '/';
+      const base = this.state.parentDir.replace(/[\\/]+$/, '');
+      return base ? `${base}${sep}${this.state.projectName || '<project-name>'}` : '';
+    },
+
+    setupCmd() {
+      const path = this.fullPath();
+      if (!path) return '';
+      if (this.os === 'win') {
+        return [
+          `mkdir "${path}"`,
+          `cd "${path}"`,
+          `git init`,
+          `mkdir .sdd\\memory`,
+          `code .`,
+        ].join('\n');
+      } else {
+        return [
+          `mkdir -p "${path}"`,
+          `cd "${path}"`,
+          `git init`,
+          `mkdir -p .sdd/memory`,
+          `code .`,
+        ].join('\n');
+      }
+    },
+
+    copyCmd() {
+      navigator.clipboard.writeText(this.setupCmd()).then(() => {
+        this.copiedCmd = true;
+        setTimeout(() => this.copiedCmd = false, 2000);
+      });
+    },
+
+    // ── Services ─────────────────────────────────────────────────────────
+    addService() {
+      const name = this.newServiceName.trim();
+      if (!name) return;
+      this.state.services.push({ name, arch: 'clean' });
+      this.newServiceName = '';
+    },
+
+    // ── Output ───────────────────────────────────────────────────────────
+    projectMd() {
+      const fl = { none: 'None', react: 'React (Vite + TypeScript + TailwindCSS + React Router + Zustand)', angular: 'Angular (CLI + TypeScript + Angular Material + NgRx Signals)' };
+      const bl = { none: 'None', monolith: 'C# Monolith — Clean Architecture (jasontaylordev)', microservice: 'C# Microservice (.NET Aspire + YARP + MassTransit)', node: 'Node.js (Express + TypeScript + Prisma)' };
+      const dl = { none: 'None', postgres: 'PostgreSQL', sqlserver: 'SQL Server', mongodb: 'MongoDB', sqlite: 'SQLite (dev only)' };
+      const al = { none: 'None', identity: 'ASP.NET Core Identity', duende: 'Duende IdentityServer (OAuth2/OIDC)', auth0: 'Auth0 / Okta', jwt: 'JWT only' };
+      const pl = { cdn: 'CDN + Separate API (FE on CDN, API on app server)', host: '.Host Project (ClientApp → wwwroot, one artifact)' };
+      const archl = { clean: 'Clean Architecture', vertical: 'Vertical Slice', hybrid: 'Hybrid' };
+
+      const s = this.state;
+      let services = '';
+      if (s.backend === 'microservice' && s.services.length > 0) {
+        const rows = s.services.map(sv => `| ${sv.name} | ${archl[sv.arch]} | |`).join('\n');
+        services = `\n## Services\n| Service | Internal Architecture | Reason |\n|---|---|---|\n${rows}\n`;
+      }
+
+      const refs = [
+        s.frontend && s.frontend !== 'none' ? `templates/${s.frontend}/architecture.md` : null,
+        s.backend === 'monolith'     ? 'templates/csharp-monolith/architecture.md'     : null,
+        s.backend === 'microservice' ? 'templates/csharp-microservice/architecture.md' : null,
+        s.deployment === 'cdn'       ? 'templates/deployment/cdn-separate-api.md'      : null,
+        s.deployment === 'host'      ? 'templates/deployment/host-project.md'          : null,
+        !s.frontend || s.frontend === 'none' ? 'templates/deployment/api-only.md'      : null,
+        s.frontend && s.frontend !== 'none' ? `templates/constitutions/${s.frontend}.md` : null,
+        s.backend === 'monolith'     ? 'templates/constitutions/csharp-monolith.md'    : null,
+        s.backend === 'microservice' ? 'templates/constitutions/csharp-microservice.md': null,
+        s.backend === 'node'         ? 'templates/constitutions/nodejs.md'             : null,
+      ].filter(Boolean);
+
+      return `# Project Stack
+
+## Project
+**Name:** ${s.projectName || '—'}
+**Location:** ${this.fullPath() || '—'}
+
+## Frontend
+${fl[s.frontend] || 'None'}
+
+## Backend
+${bl[s.backend] || 'None'}
+${services}
+## Database
+${dl[s.database] || 'None'}
+
+## Auth
+${al[s.auth] || 'None'}
+
+## Deployment pattern
+${s.deployment ? pl[s.deployment] : 'N/A'}
+
+## Architecture references
+${refs.map(r => `- ${r}`).join('\n')}
+
+## Initialised
+${new Date().toISOString().split('T')[0]}
+`;
+    },
+
+    copy() {
+      navigator.clipboard.writeText(this.projectMd()).then(() => {
+        this.copied = true;
+        setTimeout(() => this.copied = false, 2000);
+      });
+    },
+  };
+}
+</script>
+</body>
+</html>
