@@ -2,19 +2,23 @@
   "permissions": {
     "allow": [
       "Read(**)",
-      "Write(.sdd/**)",
-      "Write(.claude/**)",
-      "Edit(.sdd/**)",
-      "Edit(.claude/**)",
-      "Edit(CLAUDE.md)",
+      "Write(**)",
+      "Edit(**)",
       "Bash(git status)",
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git checkout *)",
       "Bash(git branch *)",
       "Bash(git push *)",
+      "Bash(git mv *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git init *)",
       "Bash(mkdir *)",
-      "Bash(ls *)"
+      "Bash(ls *)",
+      "Bash(cp *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr view *)"
     ]
   }
 }
