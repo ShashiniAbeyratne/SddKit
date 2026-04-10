@@ -122,9 +122,9 @@ Copy `.claude/` and `templates/` into your project root, then start at `/sdd-con
 ├── skills/
 │   ├── init/                 (SDD-Kit bootstrappers — not copied to projects)
 │   │   ├── sdd-init/         /sdd-init
-│   │   └── sdd-install/      /sdd-install
+│   │   ├── sdd-install/      /sdd-install
+│   │   └── sdd-constitution/ /sdd-constitution
 │   └── sdlc/                 (copied into every new project)
-│       ├── sdd-constitution/ /sdd-constitution
 │       ├── sdd-specify/      /sdd-specify
 │       ├── sdd-clarify/      /sdd-clarify
 │       ├── sdd-plan/         /sdd-plan

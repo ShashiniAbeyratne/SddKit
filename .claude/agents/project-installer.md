@@ -35,7 +35,6 @@ CLAUDE.md
 Copy every skill folder from `<sddkit_path>/.claude/skills/sdlc/` to `<target_path>/.claude/skills/`:
 
 Skills to copy (all from the `sdlc/` section):
-- sdd-constitution/ (+ constitution-template.md)
 - sdd-specify/      (+ spec-template.md, quality-checklist.md)
 - sdd-clarify/
 - sdd-plan/         (+ plan-template.md)
@@ -48,7 +47,7 @@ Skills to copy (all from the `sdlc/` section):
 - sdd-commit/
 - sdd-push/
 
-Do NOT copy the `init/` section (sdd-init/, sdd-install/) — those are SDD-Kit bootstrappers, not project skills.
+Do NOT copy the `init/` section (sdd-init/, sdd-install/, sdd-constitution/) — those are SDD-Kit bootstrappers, not project SDLC skills.
 
 ### 3. Copy all agents
 
