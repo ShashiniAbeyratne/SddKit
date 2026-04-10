@@ -9,7 +9,7 @@ A spec-driven development workflow for Claude Code. Replaces vibe coding with a 
 SDD-Kit gives you a set of Claude Code skills that enforce a planning phase before any implementation happens. Every feature goes through the same sequence:
 
 ```
-init → constitution → specify → clarify → plan → analyze → tasks → implement → review → commit
+init → constitution → specify → clarify → plan → analyze → tasks → implement → standards → security → review → commit → push
 ```
 
 Each phase produces a versioned artifact in `.sdd/`. You review and approve before the next phase starts. The agent never writes implementation code until `tasks.md` is approved.
@@ -20,16 +20,27 @@ Each phase produces a versioned artifact in `.sdd/`. You review and approve befo
 
 | Skill | What it does |
 |---|---|
-| `/sdd-init` | Select your tech stack and scaffold the project structure |
+### Planning
+| Skill | What it does |
+|---|---|
+| `/sdd-init` | Select your tech stack, scaffold the project, and install the skill suite |
+| `/sdd-install` | Install the SDD-Kit workflow into an existing project |
 | `/sdd-constitution` | Set the governing principles, coding standards, and hard constraints |
 | `/sdd-specify <idea>` | Write a technology-agnostic spec with user stories and acceptance criteria |
 | `/sdd-clarify` | Fill in gaps and resolve ambiguities before planning |
 | `/sdd-plan` | Create the technical implementation plan |
 | `/sdd-analyze` | Cross-check spec, plan, and research for contradictions before coding |
 | `/sdd-tasks` | Break the plan into a dependency-ordered, sized task list |
+
+### Development
+| Skill | What it does |
+|---|---|
 | `/sdd-implement` | Execute the approved tasks with checkpoints |
+| `/sdd-standards` | Check implementation against coding standards in the constitution |
+| `/sdd-security` | OWASP Top 10 security review of changed files |
 | `/sdd-review` | Verify what was built matches what was specified |
 | `/sdd-commit` | Generate a structured commit message and PR description |
+| `/sdd-push` | Push branch and open a pull request |
 
 ---
 
@@ -109,20 +120,27 @@ Copy `.claude/` and `templates/` into your project root, then start at `/sdd-con
 ```
 .claude/
 ├── skills/
-│   ├── sdd-init/             /sdd-init
-│   ├── sdd-constitution/     /sdd-constitution
-│   ├── sdd-specify/          /sdd-specify
-│   ├── sdd-clarify/          /sdd-clarify
-│   ├── sdd-plan/             /sdd-plan
-│   ├── sdd-analyze/          /sdd-analyze
-│   ├── sdd-tasks/            /sdd-tasks
-│   ├── sdd-implement/        /sdd-implement
-│   ├── sdd-review/           /sdd-review
-│   └── sdd-commit/           /sdd-commit
+│   ├── init/                 (SDD-Kit bootstrappers — not copied to projects)
+│   │   ├── sdd-init/         /sdd-init
+│   │   └── sdd-install/      /sdd-install
+│   └── sdlc/                 (copied into every new project)
+│       ├── sdd-constitution/ /sdd-constitution
+│       ├── sdd-specify/      /sdd-specify
+│       ├── sdd-clarify/      /sdd-clarify
+│       ├── sdd-plan/         /sdd-plan
+│       ├── sdd-analyze/      /sdd-analyze
+│       ├── sdd-tasks/        /sdd-tasks
+│       ├── sdd-implement/    /sdd-implement
+│       ├── sdd-standards/    /sdd-standards
+│       ├── sdd-security/     /sdd-security
+│       ├── sdd-review/       /sdd-review
+│       ├── sdd-commit/       /sdd-commit
+│       └── sdd-push/         /sdd-push
 └── agents/
     ├── tech-researcher.md    spawned by /sdd-plan
-    ├── spec-analyst.md       spawned by /sdd-analyze and /sdd-review
-    └── scaffold-generator.md spawned by /sdd-init
+    ├── spec-analyst.md       spawned by /sdd-analyze, /sdd-review, /sdd-standards, /sdd-security
+    ├── scaffold-generator.md spawned by /sdd-init
+    └── project-installer.md  spawned by /sdd-init and /sdd-install
 
 templates/
 ├── react/                    React architecture reference

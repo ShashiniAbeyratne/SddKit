@@ -122,11 +122,31 @@ Write `.sdd/memory/project.md` with:
 [date]
 ```
 
-## Step 4 — Update CLAUDE.md
+## Step 4 — Run /sdd-constitution
 
-Update the `## Tech stack` section of `CLAUDE.md` with a one-line summary of the chosen stack.
+Before installing, the project needs a constitution — this is what gets copied into the new project and governs all future implementation, standards checks, and security reviews.
+
+Tell the user:
+> "Before we install the workflow into your new project, let's set the constitution — the coding standards and principles that will govern this project. I'll ask you 5 questions."
+
+Run the full `/sdd-constitution` skill now, in the context of the new project's stack.
+The constitution will be written to `.sdd/memory/constitution.md` here in SDD-Kit — it will be copied into the new project in the next step.
+
+## Step 5 — Install SDD-Kit skill suite
+
+Spawn the `project-installer` agent (`.claude/agents/project-installer.md`) with:
+- `target_path`: the project directory being initialised (current working directory or the path provided in $ARGUMENTS)
+- `sddkit_path`: the directory where SDD-Kit lives (the parent of this `.claude/` folder)
+- `stack`: the full stack choices made in Step 1
+- `constitution_path`: `.sdd/memory/constitution.md` (the file written in Step 4)
+
+This copies all skills, agents, relevant templates, **and the completed constitution** into the new project's `.claude/` and `.sdd/` so the project is fully self-contained from day one.
+
+## Step 6 — Update CLAUDE.md
+
+Update the `## Tech stack` section of `CLAUDE.md` in the target project with a one-line summary of the chosen stack.
 
 After all steps:
-- Report what was scaffolded
-- Remind me to run `/sdd-constitution` if not done yet
-- Remind me to commit the scaffold: `git add . && git commit -m "chore: initialise project scaffold"`
+- Report what was scaffolded, what skills were installed, and confirm the constitution was copied
+- Remind me to commit: `git add . && git commit -m "chore: initialise project scaffold + install SDD-Kit workflow"`
+- Tell me the project is ready: next step is `/sdd-specify` to start the first feature
