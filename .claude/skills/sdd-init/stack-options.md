@@ -77,8 +77,8 @@ This file is read by /sdd-init to understand supported combinations and their co
 ## Supported Deployment Patterns
 
 ### Option 1 — CDN + Separate API (Industry Standard)
-- **Frontend deployed to:** Azure Static Web Apps / Vercel / Netlify / S3 + CloudFront
-- **Backend deployed to:** Azure App Service / AWS ECS / Kubernetes
+- **Frontend deployed to:** chosen frontend hosting provider
+- **Backend deployed to:** chosen API hosting provider
 - **CORS:** Always on (dev and prod)
 - **Pipelines:** Two independent pipelines — FE and BE deploy separately
 - **Repo structure:** Monorepo with `client/` + `src/` folders, or two separate repos
@@ -87,20 +87,54 @@ This file is read by /sdd-init to understand supported combinations and their co
 
 ### Option 2 — .Host Project (Microsoft SPA Pattern)
 - **Frontend deployed as:** Static files inside `[Project].Host/wwwroot/` (output of `ng build`)
-- **Backend deployed to:** IIS / Azure App Service (one process serves both)
+- **Backend deployed to:** chosen API hosting provider (hosts both FE and BE)
 - **CORS:** Dev only — production is same-origin
-- **Pipelines:** One pipeline — build Angular first, then publish .NET
+- **Pipelines:** One pipeline — build Angular/React first, then publish .NET
 - **Repo structure:** `ClientApp/` folder inside the `.Host` project
 - **Best for:** Enterprise .NET shops, single team, internal tools, existing projects using this pattern
 - **Template:** `templates/deployment/host-project.md`
 
 ### Option 3 — API Only (No Frontend in This Repo)
 - **Frontend:** Not included — separate repo or external team
-- **Backend deployed to:** Azure App Service / ECS / AKS
+- **Backend deployed to:** chosen API hosting provider
 - **CORS:** Always on, configured per allowed client origin
 - **Extra:** OpenAPI / Scalar docs, API versioning scaffolded automatically
 - **Best for:** APIs consumed by multiple clients, public APIs, backend-only projects
 - **Template:** `templates/deployment/api-only.md`
+
+---
+
+## Supported Frontend Hosting Providers
+
+| Option | Provider | Best for |
+|---|---|---|
+| 1 | Vercel | React/Next.js, best DX, instant preview deploys |
+| 2 | Netlify | Similar to Vercel, strong form/function/edge support |
+| 3 | Azure Static Web Apps | Teams already on Azure; free tier, built-in auth proxy, pairs well with App Service |
+| 4 | AWS S3 + CloudFront | Maximum control, cheapest at scale, more config required |
+| 5 | GCP Cloud Storage + Cloud CDN | Teams already running GCP infrastructure |
+
+## Supported API / Backend Hosting Providers
+
+| Option | Provider | Best for |
+|---|---|---|
+| 1 | Azure App Service | PaaS, easy deploy, strong Azure ecosystem integration |
+| 2 | Azure Container Apps | Container-based, auto-scale to zero, good for microservices |
+| 3 | AWS ECS (Fargate) | Container PaaS on AWS, pairs well with RDS/Aurora/ECR |
+| 4 | AWS Lambda | Serverless, low-traffic or event-driven APIs, pay-per-request |
+| 5 | GCP Cloud Run | Serverless containers, pay-per-request, fast cold starts |
+| 6 | GCP GKE | Full Kubernetes on GCP for teams already running k8s |
+| 7 | Railway | Simplest deploy experience, great for small/indie projects |
+| 8 | Render | Heroku alternative, supports Docker and native runtimes |
+
+## Hosting Compatibility Notes
+
+- **Vercel + Azure App Service** — popular pairing; add Azure origin to CORS config
+- **Azure Static Web Apps + Azure App Service** — best integrated Azure experience; use managed identity between services
+- **AWS S3+CF + AWS ECS** — full AWS; use ALB in front of ECS, WAF optional
+- **GCP Cloud Storage + GCP Cloud Run** — full GCP; use Cloud Armor for WAF
+- **Railway / Render** — no native CDN for frontend; pair with Vercel/Netlify for FE
+- **.Host pattern + any provider** — only the API hosting choice matters (FE is bundled inside)
 
 ---
 

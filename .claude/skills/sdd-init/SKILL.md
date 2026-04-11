@@ -61,8 +61,6 @@ For each service, choose internal architecture:
 1. CDN + Separate API (industry standard)
       You are building BOTH the frontend and the API in this project.
       They deploy to different places — FE to a CDN, API to a server.
-      FE → Azure Static Web Apps / Vercel / Netlify
-      API → Azure App Service / ECS
       CORS always on. Independent pipelines. Best for new projects.
 
 2. .Host project (Microsoft SPA pattern)
@@ -77,6 +75,31 @@ If frontend is None → no deployment question needed. The API is standalone.
       Auto-add: OpenAPI/Scalar docs, versioning, CORS config for external clients.
 If backend is None → no deployment question. Note to deploy dist/ to a CDN.
 
+**Frontend hosting** (ask if frontend is NOT None):
+```
+1. Vercel          — best DX, instant previews, great for React/Next.js
+2. Netlify         — similar to Vercel, strong form/function support
+3. Azure Static Web Apps — best if API is on Azure; free tier, built-in auth proxy
+4. AWS S3 + CloudFront   — most control, cheapest at scale, needs more config
+5. GCP Cloud Storage + Cloud CDN — good if rest of stack is on GCP
+```
+
+**API / Backend hosting** (ask if backend is NOT None):
+```
+1. Azure App Service   — PaaS, easy deploy, best with Azure DB/identity
+2. Azure Container Apps — container-based, auto-scale, good for microservices
+3. AWS ECS (Fargate)   — container PaaS on AWS, pairs well with RDS/Aurora
+4. AWS Lambda          — serverless, great for low-traffic or event-driven APIs
+5. GCP Cloud Run       — serverless containers on GCP, pay-per-request
+6. GCP GKE             — Kubernetes on GCP, for teams already running k8s
+7. Railway             — simplest deploy experience, good for small/indie projects
+8. Render              — Heroku alternative, easy Docker or native deploys
+```
+
+Skip the frontend hosting question if frontend is None.
+Skip the API hosting question if backend is None.
+For the .Host pattern, ask only the API hosting question (it hosts both).
+
 ## Step 2 — Read templates and spawn scaffold agent
 
 Read the relevant architecture template files from `templates/` in the project root:
@@ -84,11 +107,17 @@ Read the relevant architecture template files from `templates/` in the project r
 - Backend choice → `templates/csharp-monolith/architecture.md` or `templates/csharp-microservice/architecture.md`
 - If microservice, also read `templates/csharp-microservice/clean-architecture-service.md` and/or `templates/csharp-microservice/vertical-slice-service.md` based on per-service choices
 - Deployment pattern → `templates/deployment/cdn-separate-api.md`, `templates/deployment/host-project.md`, or `templates/deployment/api-only.md`
+- Frontend hosting provider → `templates/hosting/vercel.md`, `templates/hosting/netlify.md`, `templates/hosting/azure-static-web-apps.md`, `templates/hosting/aws-s3-cloudfront.md`, or `templates/hosting/gcp-cloud-storage-cdn.md`
+- API hosting provider → `templates/hosting/azure-app-service.md`, `templates/hosting/azure-container-apps.md`, `templates/hosting/aws-ecs.md`, `templates/hosting/aws-lambda.md`, `templates/hosting/gcp-cloud-run.md`, `templates/hosting/gcp-gke.md`, `templates/hosting/railway.md`, or `templates/hosting/render.md`
+
+Skip hosting templates that don't apply (e.g. no frontend hosting template if frontend is None; for .Host pattern only read the API hosting template).
 
 Spawn the `scaffold-generator` agent (`.claude/agents/scaffold-generator.md`) with:
-- All stack choices made
+- All stack choices made (frontend, backend, database, auth, deployment pattern)
+- Frontend hosting provider choice and content of the relevant frontend hosting template
+- API hosting provider choice and content of the relevant API hosting template
 - Content of relevant architecture template files
-- Instruction to generate the folder structure
+- Instruction to generate the folder structure and all hosting-specific files
 
 ## Step 3 — Write project memory
 
@@ -114,7 +143,11 @@ Write `.sdd/memory/project.md` with:
 [choice]
 
 ## Deployment pattern
-[choice + brief description, e.g. "CDN + Separate API — FE on Azure Static Web Apps, API on App Service"]
+[choice + brief description, e.g. "CDN + Separate API"]
+
+## Hosting
+- Frontend: [provider, e.g. Vercel / Azure Static Web Apps / Netlify]
+- API: [provider, e.g. Azure App Service / AWS ECS / GCP Cloud Run]
 
 ## Architecture reference
 [links to template files used]
