@@ -130,25 +130,23 @@ Copy `.claude/` and `templates/` into your project root, then start at `/sdd-con
 ```
 .claude/
 ├── skills/
-│   ├── init/                 (SDD-Kit bootstrappers — not copied to projects)
-│   │   ├── sdd-init/         /sdd-init
-│   │   ├── sdd-install/      /sdd-install
-│   │   ├── sdd-audit/        /sdd-audit
-│   │   └── sdd-constitution/ /sdd-constitution
-│   └── sdlc/                 (copied into every new project)
-│       ├── sdd-specify/      /sdd-specify
-│       ├── sdd-clarify/      /sdd-clarify
-│       ├── sdd-plan/         /sdd-plan
-│       ├── sdd-analyze/      /sdd-analyze
-│       ├── sdd-test/         /sdd-test
-│       ├── sdd-tasks/        /sdd-tasks
-│       ├── sdd-implement/    /sdd-implement
-│       ├── sdd-fix/          /sdd-fix
-│       ├── sdd-standards/    /sdd-standards
-│       ├── sdd-security/     /sdd-security
-│       ├── sdd-review/       /sdd-review
-│       ├── sdd-commit/       /sdd-commit
-│       └── sdd-push/         /sdd-push
+│   ├── sdd-init/             group: init  — not copied to projects
+│   ├── sdd-install/          group: init
+│   ├── sdd-audit/            group: init
+│   ├── sdd-constitution/     group: init
+│   ├── sdd-specify/          group: sdlc  — copied into every new project
+│   ├── sdd-clarify/          group: sdlc
+│   ├── sdd-plan/             group: sdlc
+│   ├── sdd-analyze/          group: sdlc
+│   ├── sdd-test/             group: sdlc
+│   ├── sdd-tasks/            group: sdlc
+│   ├── sdd-implement/        group: sdlc
+│   ├── sdd-fix/              group: sdlc
+│   ├── sdd-standards/        group: sdlc
+│   ├── sdd-security/         group: sdlc
+│   ├── sdd-review/           group: sdlc
+│   ├── sdd-commit/           group: sdlc
+│   └── sdd-push/             group: sdlc
 └── agents/
     ├── tech-researcher.md    spawned by /sdd-plan
     ├── spec-analyst.md       spawned by /sdd-analyze, /sdd-review, /sdd-standards, /sdd-security

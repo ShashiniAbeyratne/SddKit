@@ -3,7 +3,13 @@
     "allow": [
       "mcp__github__get_me",
       "mcp__github__search_repositories",
-      "mcp__github__create_repository"
+      "mcp__github__create_repository",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:kiro.dev)",
+      "WebFetch(domain:repost.aws)",
+      "mcp__github__search_issues",
+      "WebFetch(domain:addyosmani.com)"
     ]
   }
 }

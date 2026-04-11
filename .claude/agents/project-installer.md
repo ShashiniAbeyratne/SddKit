@@ -34,9 +34,9 @@ CLAUDE.md
 
 ### 2. Copy all skills
 
-Copy every skill folder from `<sddkit_path>/.claude/skills/sdlc/` to `<target_path>/.claude/skills/`:
+All skills now live flat in `<sddkit_path>/.claude/skills/`. Each SKILL.md has a `group:` frontmatter field — copy only skills where `group: sdlc`.
 
-Skills to copy (all from the `sdlc/` section):
+Skills to copy (`group: sdlc`):
 - sdd-specify/      (+ spec-template.md, quality-checklist.md)
 - sdd-clarify/
 - sdd-plan/         (+ plan-template.md)
@@ -51,7 +51,7 @@ Skills to copy (all from the `sdlc/` section):
 - sdd-commit/
 - sdd-push/
 
-Do NOT copy the `init/` section (sdd-init/, sdd-install/, sdd-constitution/, sdd-audit/) — those are SDD-Kit bootstrappers, not project SDLC skills.
+Do NOT copy skills where `group: init` (sdd-init, sdd-install, sdd-constitution, sdd-audit) — those are SDD-Kit bootstrappers, not project SDLC skills.
 
 ### 3. Copy hooks
 
