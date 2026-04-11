@@ -62,7 +62,18 @@ WARNINGS — review items above, then proceed
 BLOCKING — fix listed issues before proceeding
 ```
 
-## Step 3 — Wrap up
+## Step 3 — Update changelog
+
+Append to `.sdd/specs/<current-feature>/changelog.md` (create if it doesn't exist):
+
+```markdown
+## [analyze] <date>
+**Verdict:** CLEAN / WARNINGS / BLOCKING
+**Issues found:** [count] blocking, [count] warnings
+**Spec changes triggered:** [list any updates to spec.md or plan.md as a result, or "none"]
+```
+
+## Step 4 — Wrap up
 - Present the verdict clearly
 - If BLOCKING: list exactly what must be resolved and which skill to re-run
-- If CLEAN or WARNINGS: remind me to run `/sdd-tasks`
+- If CLEAN or WARNINGS: remind me to run `/sdd-tasks` (or `/sdd-test` first if complexity is Epic)

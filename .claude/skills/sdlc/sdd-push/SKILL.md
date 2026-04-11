@@ -29,7 +29,18 @@ If it exists and shows ❌ CRITICAL or HIGH findings, stop and say these must be
 Check if `.sdd/specs/<current-feature>/standards-review.md` exists.
 If it exists and shows ❌ FAIL verdict, stop and say errors must be resolved before pushing.
 
-## Step 3 — Push
+## Step 3 — Worktree check
+
+Check if the current branch is being developed in a git worktree:
+```bash
+git worktree list
+```
+
+If the feature was developed in a worktree (the branch appears in a non-main worktree):
+- The push still happens from the worktree — no action needed
+- Note this in the wrap-up so the user knows to clean up the worktree after merge
+
+## Step 4 — Push
 
 ```bash
 git push -u origin HEAD
@@ -76,9 +87,10 @@ EOF
 
 Show the command and ask for approval before running it.
 
-## Step 5 — Wrap up
+## Step 6 — Wrap up
 
 After push (and optional PR):
 - Report the branch URL
 - Report the PR URL if created
 - Remind me to update CLAUDE.md `## Active feature` section to reflect the completed feature
+- If developed in a worktree, remind: `git worktree remove <path>` after the PR is merged

@@ -48,7 +48,17 @@ If any answers change the acceptance criteria or scope:
 - Update `.sdd/specs/<current-feature>/spec.md` accordingly
 - List what changed in a brief summary
 
-## Step 5 — Wrap up
+## Step 5 — Update changelog
+
+Append to `.sdd/specs/<current-feature>/changelog.md` (create if it doesn't exist):
+
+```markdown
+## [clarify] <date>
+**Changes:** [what changed in the spec — one bullet per AC or section modified]
+**Why:** [which clarification answer drove each change]
+```
+
+## Step 6 — Wrap up
 - Report what was clarified and what (if anything) changed in the spec
 - Confirm no open questions remain
 - Remind me to run `/sdd-plan` next

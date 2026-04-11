@@ -13,6 +13,29 @@ Read before doing anything:
 
 If `tasks.md` has no approved status (status is still "Pending approval"), confirm with me before starting.
 
+Check `spec.md` for the **Complexity** field:
+- **Trivial** — implement directly, no tasks.md needed, check constitution first
+- **Feature** — standard sequential execution (default below)
+- **Epic** — use parallel agent teams for Sprint 2+ streams (see Epic mode below)
+
+## Epic mode (only if complexity = Epic)
+
+For epics with a sprint plan in `tasks.md`:
+
+**Sprint 1 (foundation)** — execute sequentially as normal. Confirm locked API contracts are written before proceeding.
+
+**Sprint 2+ (parallel streams)** — spawn one subagent per stream. Each agent receives:
+- The tasks for its stream (e.g. Sprint 2A: T003, T005, T007)
+- The locked API contracts from tasks.md
+- The spec.md and plan.md
+- The constitution.md
+- Instruction: "Implement only the tasks listed. Do not cross into the other stream's files. Flag scope discoveries."
+
+After all Sprint 2 agents complete, consolidate their results:
+- Run build/tests across the full codebase
+- Flag any conflicts between streams
+- Proceed to Sprint 3 sequentially
+
 ## Execution rules
 
 Work through tasks in dependency order. Respect [P] markings — parallel tasks can be done in sequence if easier, but note they could have been concurrent.

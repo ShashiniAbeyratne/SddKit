@@ -9,8 +9,10 @@ A spec-driven development workflow for Claude Code. Replaces vibe coding with a 
 SDD-Kit gives you a set of Claude Code skills that enforce a planning phase before any implementation happens. Every feature goes through the same sequence:
 
 ```
-init → constitution → specify → clarify → plan → analyze → tasks → implement → standards → security → review → commit → push
+init → audit? → constitution → specify → clarify → plan → analyze → test? → tasks → implement → standards → security → review → commit → push
 ```
+
+Complexity-aware: **Trivial** skips straight to implement. **Epic** adds test strategy and spawns parallel agent teams. Bugs use `/sdd-fix` — a dedicated lightweight track.
 
 Each phase produces a versioned artifact in `.sdd/`. You review and approve before the next phase starts. The agent never writes implementation code until `tasks.md` is approved.
 
@@ -18,29 +20,37 @@ Each phase produces a versioned artifact in `.sdd/`. You review and approve befo
 
 ## Skills
 
-| Skill | What it does |
-|---|---|
-### Planning
+### Initialisation (stay in SDD-Kit, not copied to projects)
+
 | Skill | What it does |
 |---|---|
 | `/sdd-init` | Select your tech stack, scaffold the project, and install the skill suite |
-| `/sdd-install` | Install the SDD-Kit workflow into an existing project |
+| `/sdd-install` | Install SDD-Kit into an existing project |
+| `/sdd-audit` | **Brownfield** — analyse existing codebase, generate project.md + constitution draft |
 | `/sdd-constitution` | Set the governing principles, coding standards, and hard constraints |
-| `/sdd-specify <idea>` | Write a technology-agnostic spec with user stories and acceptance criteria |
-| `/sdd-clarify` | Fill in gaps and resolve ambiguities before planning |
-| `/sdd-plan` | Create the technical implementation plan |
-| `/sdd-analyze` | Cross-check spec, plan, and research for contradictions before coding |
-| `/sdd-tasks` | Break the plan into a dependency-ordered, sized task list |
 
-### Development
+### Planning
+
 | Skill | What it does |
 |---|---|
-| `/sdd-implement` | Execute the approved tasks with checkpoints |
+| `/sdd-specify <idea>` | Write a spec with complexity tiering (Trivial / Feature / Epic) |
+| `/sdd-clarify` | Fill in gaps and resolve ambiguities before planning |
+| `/sdd-plan` | Create the technical implementation plan (spawns parallel research agent) |
+| `/sdd-analyze` | Cross-check spec, plan, and research for contradictions |
+| `/sdd-test` | Define the test strategy before task breakdown (required for Epics) |
+| `/sdd-tasks` | Break the plan into a dependency-ordered task list (sprint grouping for Epics) |
+
+### Development
+
+| Skill | What it does |
+|---|---|
+| `/sdd-implement` | Execute tasks with checkpoints; parallel agent teams for Epics |
+| `/sdd-fix` | **Bug fix track** — Report → Analyze → Fix → Verify (lighter than full workflow) |
 | `/sdd-standards` | Check implementation against coding standards in the constitution |
 | `/sdd-security` | OWASP Top 10 security review of changed files |
 | `/sdd-review` | Verify what was built matches what was specified |
 | `/sdd-commit` | Generate a structured commit message and PR description |
-| `/sdd-push` | Push branch and open a pull request |
+| `/sdd-push` | Push branch, worktree-aware, open a pull request |
 
 ---
 
@@ -123,14 +133,17 @@ Copy `.claude/` and `templates/` into your project root, then start at `/sdd-con
 │   ├── init/                 (SDD-Kit bootstrappers — not copied to projects)
 │   │   ├── sdd-init/         /sdd-init
 │   │   ├── sdd-install/      /sdd-install
+│   │   ├── sdd-audit/        /sdd-audit
 │   │   └── sdd-constitution/ /sdd-constitution
 │   └── sdlc/                 (copied into every new project)
 │       ├── sdd-specify/      /sdd-specify
 │       ├── sdd-clarify/      /sdd-clarify
 │       ├── sdd-plan/         /sdd-plan
 │       ├── sdd-analyze/      /sdd-analyze
+│       ├── sdd-test/         /sdd-test
 │       ├── sdd-tasks/        /sdd-tasks
 │       ├── sdd-implement/    /sdd-implement
+│       ├── sdd-fix/          /sdd-fix
 │       ├── sdd-standards/    /sdd-standards
 │       ├── sdd-security/     /sdd-security
 │       ├── sdd-review/       /sdd-review

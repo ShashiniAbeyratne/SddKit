@@ -21,6 +21,8 @@ Create the following in `<target_path>`:
 .claude/
 ├── agents/
 ├── skills/
+├── hooks/
+│   └── standards-check.sh
 └── settings.json
 
 .sdd/
@@ -39,17 +41,27 @@ Skills to copy (all from the `sdlc/` section):
 - sdd-clarify/
 - sdd-plan/         (+ plan-template.md)
 - sdd-analyze/      (+ consistency-rules.md)
+- sdd-test/
 - sdd-tasks/        (+ tasks-template.md)
 - sdd-implement/
+- sdd-fix/
 - sdd-standards/    (+ standards-rules.md)
 - sdd-security/     (+ owasp-rules.md)
 - sdd-review/       (+ review-checklist.md)
 - sdd-commit/
 - sdd-push/
 
-Do NOT copy the `init/` section (sdd-init/, sdd-install/, sdd-constitution/) — those are SDD-Kit bootstrappers, not project SDLC skills.
+Do NOT copy the `init/` section (sdd-init/, sdd-install/, sdd-constitution/, sdd-audit/) — those are SDD-Kit bootstrappers, not project SDLC skills.
 
-### 3. Copy all agents
+### 3. Copy hooks
+
+Copy `<sddkit_path>/.claude/hooks/standards-check.sh` to `<target_path>/.claude/hooks/standards-check.sh`.
+
+Make it executable: `chmod +x <target_path>/.claude/hooks/standards-check.sh`
+
+This hook runs automatically after every Write/Edit tool call. It checks for universal standards violations (console.log, hardcoded secrets, SQL concat, any types, magic numbers) and auto-formats source files.
+
+### 5. Copy all agents
 
 Copy every agent from `<sddkit_path>/.claude/agents/` to `<target_path>/.claude/agents/`:
 - tech-researcher.md
@@ -58,7 +70,7 @@ Copy every agent from `<sddkit_path>/.claude/agents/` to `<target_path>/.claude/
 
 Do NOT copy project-installer.md into the target — it's a meta-agent for SDD-Kit only.
 
-### 4. Copy relevant templates and constitutions
+### 6. Copy relevant templates and constitutions
 
 Create `<target_path>/templates/` and copy only the templates relevant to the selected stack:
 
@@ -69,7 +81,7 @@ Create `<target_path>/templates/` and copy only the templates relevant to the se
 - If C# Microservice: `templates/csharp-microservice/` (all files)
 - If deployment pattern selected: the relevant `templates/deployment/<pattern>.md`
 
-### 5. Copy constitution memory
+### 8. Copy constitution memory
 
 This is the most important step — the constitution governs all implementation, reviews, and standards checks.
 
@@ -93,37 +105,57 @@ Stack base constitutions available in:
 ```
 - Note in the report that `/sdd-constitution` must be run before starting any feature work
 
-### 6. Write .claude/settings.json
+### 9. Write .claude/settings.json
+
+Write the following, adjusting the hook formatter command based on the selected stack:
+- TypeScript/JS stack → `npx prettier --write "$FILE"`
+- C# stack → `dotnet format --include "$FILE"`
+- Python stack → `black "$FILE"`
+- Go stack → `gofmt -w "$FILE"`
 
 ```json
 {
   "permissions": {
     "allow": [
       "Read(**)",
-      "Write(.sdd/**)",
-      "Write(.claude/**)",
-      "Edit(.sdd/**)",
-      "Edit(.claude/**)",
-      "Edit(CLAUDE.md)",
+      "Write(**)",
+      "Edit(**)",
       "Bash(git status)",
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git checkout *)",
       "Bash(git branch *)",
       "Bash(git push *)",
+      "Bash(git worktree *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
       "Bash(mkdir *)",
       "Bash(ls *)",
-      "Bash(gh pr create *)"
+      "Bash(gh pr create *)",
+      "Bash(gh pr view *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/standards-check.sh"
+          }
+        ]
+      }
     ]
   }
 }
 ```
 
-### 7. Write CLAUDE.md
+### 10. Write CLAUDE.md
 
 Write `<target_path>/CLAUDE.md` with the standard SDD workflow template — same content as SDD-Kit's CLAUDE.md but with the tech stack section pre-filled from the selected stack.
 
-### 8. Report
+### 11. Report
 
 After completing, report:
 ```

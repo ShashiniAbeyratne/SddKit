@@ -40,8 +40,21 @@ Once the research subagent completes, read `research.md`.
 - Flag any conflicts between the research findings and your plan
 - Update plan.md if research reveals a better approach or a gotcha
 
-## Step 4 — Wrap up
+## Step 4 — Update changelog
+
+Append to `.sdd/specs/<current-feature>/changelog.md` (create if it doesn't exist):
+
+```markdown
+## [plan] <date>
+**Key decisions:**
+- [Architecture choice + one-line rationale]
+- [Data model decision + why]
+- [Any spec assumption that was resolved during planning]
+**Research findings that changed the plan:** [brief note, or "none"]
+```
+
+## Step 5 — Wrap up
 - Present a summary of key decisions made
 - Ask me to review `plan.md` and `research.md`
 - Do not create `tasks.md` yet — wait for my approval
-- Remind me to run `/sdd-analyze` then `/sdd-tasks` after review
+- Remind me to run `/sdd-analyze` then (if epic) `/sdd-test`, then `/sdd-tasks`

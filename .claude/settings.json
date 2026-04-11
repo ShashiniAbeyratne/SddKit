@@ -14,11 +14,25 @@
       "Bash(git log *)",
       "Bash(git diff *)",
       "Bash(git init *)",
+      "Bash(git worktree *)",
       "Bash(mkdir *)",
       "Bash(ls *)",
       "Bash(cp *)",
       "Bash(gh pr create *)",
       "Bash(gh pr view *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/standards-check.sh"
+          }
+        ]
+      }
     ]
   }
 }
