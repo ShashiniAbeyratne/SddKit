@@ -93,6 +93,13 @@ If `constitution_path` was provided and the file exists:
 - Copy it to `<target_path>/.sdd/memory/constitution.md`
 - This is the merged document containing both stack defaults AND the user's project-specific answers
 
+**Copy project.md:**
+If a `project.md` exists alongside `constitution.md` (i.e. in the same `.sdd/memory/` directory as `constitution_path`):
+- Copy it to `<target_path>/.sdd/memory/project.md`
+
+**Clean up SDD-Kit memory:**
+After copying both files to the target project, delete them from SDD-Kit's own `.sdd/memory/` folder — they belong to the target project, not SDD-Kit.
+
 If `constitution_path` was not provided or doesn't exist:
 - Write a placeholder to `<target_path>/.sdd/memory/constitution.md`:
 ```markdown

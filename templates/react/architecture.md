@@ -83,12 +83,74 @@ tsconfig.json
 ## Scaffold Command
 
 When generating this scaffold, create:
+- `package.json` with all core dependencies and dev dependencies pre-listed (see below)
 - `vite.config.ts` with path aliases (`@/` → `src/`)
 - `tsconfig.json` with strict mode
 - `tailwind.config.ts` with content paths set
 - `.env.example` with `VITE_API_BASE_URL=`
 - `shared/lib/api-client.ts` with axios instance skeleton
 - `shared/lib/query-client.ts` with TanStack Query config
+
+### package.json — base dependencies
+
+```json
+{
+  "name": "project",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0",
+    "zustand": "^4.5.4",
+    "@tanstack/react-query": "^5.56.2",
+    "react-hook-form": "^7.53.0",
+    "zod": "^3.23.8",
+    "axios": "^1.7.7",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.2",
+    "tailwindcss": "^3.4.10",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "eslint": "^9.9.0",
+    "@eslint/js": "^9.9.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^15.9.0",
+    "typescript-eslint": "^8.0.1",
+    "vitest": "^2.0.5",
+    "@vitest/ui": "^2.0.5",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/jest-dom": "^6.5.0",
+    "msw": "^2.4.1",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.6"
+  }
+}
+```
+
+**Note:** If the user selected additional libraries (e.g. shadcn/ui, Framer Motion), add them to `dependencies`:
+- shadcn/ui: installed via `npx shadcn@latest init` — do NOT add to package.json manually; it self-installs Radix UI primitives
+- Framer Motion: `"framer-motion": "^11.5.4"`
+- Playwright (e2e): `"@playwright/test": "^1.47.0"` in devDependencies
 
 ## Testing Standards
 
