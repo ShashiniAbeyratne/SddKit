@@ -1,0 +1,17 @@
+# Claude Code — local user settings (machine-specific, never shared)
+.claude/settings.local.json
+
+# SDD-Kit generated artifacts — these belong to target projects, not SDD-Kit itself
+.sdd/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Logs
+*.log

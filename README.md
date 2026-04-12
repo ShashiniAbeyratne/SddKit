@@ -72,9 +72,15 @@ PostgreSQL · SQL Server · MongoDB · SQLite
 ASP.NET Core Identity · Duende IdentityServer · Auth0/Okta · JWT
 
 ### Deployment patterns
-- **CDN + Separate API** — FE on Azure Static Web Apps / Vercel, API on App Service (industry standard)
+- **CDN + Separate API** — FE and API deploy independently; CORS always on (industry standard)
 - **.Host Project** — Angular/React compiled into ASP.NET wwwroot, one artifact (enterprise .NET pattern)
-- **API Only** — No frontend in this repo, includes OpenAPI/Scalar and versioning
+- **API Only** — No frontend in this repo; includes OpenAPI/Scalar and versioning
+
+### Frontend hosting
+Azure Static Web Apps · Vercel · Netlify · AWS S3 + CloudFront · GCP Cloud Storage + CDN
+
+### API / Backend hosting
+Azure App Service · Azure Container Apps · AWS ECS (Fargate) · AWS Lambda · GCP Cloud Run · GCP GKE · Railway · Render
 
 ---
 
@@ -82,46 +88,30 @@ ASP.NET Core Identity · Duende IdentityServer · Auth0/Okta · JWT
 
 ### On a new project
 
-Open the init UI in your browser — no server or npm required:
+Open Claude Code in the SDD-Kit directory and run:
 
 ```
-init-ui/index.html
+/sdd-init
 ```
 
-Select your stack, copy the generated setup command and `project.md`, then:
+It will ask for the target project path, walk you through stack selection, generate a constitution, scaffold the folder structure, and install the full skill suite into your project automatically.
 
-```bash
-# 1. Run the setup command from the UI output (creates folder + git init)
-
-# 2. Copy SDD-Kit into your project
-cp -r /path/to/SDD-Kit/.claude your-project/
-cp -r /path/to/SDD-Kit/templates your-project/
-
-# 3. Save the project.md from the UI
-mkdir -p .sdd/memory
-# paste project.md content into .sdd/memory/project.md
-
-# 4. Open in Claude Code
-code your-project/
-```
-
-Then run the workflow in Claude Code:
+Then open the new project in Claude Code and start your first feature:
 
 ```
-/sdd-constitution
-/sdd-specify add user authentication
-/sdd-clarify
-/sdd-plan React + ASP.NET Core Identity
-/sdd-analyze
-/sdd-tasks
-/sdd-implement
-/sdd-review
-/sdd-commit
+/sdd-specify <your feature idea>
 ```
 
 ### On an existing project
 
-Copy `.claude/` and `templates/` into your project root, then start at `/sdd-constitution`.
+Run `/sdd-audit` first to analyse the codebase and generate a constitution draft, then install the workflow:
+
+```
+/sdd-audit
+/sdd-install
+```
+
+Or just copy `.claude/` and `templates/` into your project root manually and run `/sdd-constitution` to set the governing principles.
 
 ---
 
@@ -162,7 +152,7 @@ templates/
 └── constitutions/            Base coding standards per stack
 
 init-ui/
-└── index.html                Stack selection wizard (open in browser)
+└── index.html                Legacy browser stack wizard (superseded by /sdd-init)
 
 .sdd/                         Generated per project (gitignored or committed)
 ├── memory/
