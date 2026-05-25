@@ -1,33 +1,112 @@
 # SDD-Kit
 
-A spec-driven development workflow for Claude Code. Replaces vibe coding with a structured, reviewable process — requirements first, code last.
+**Spec-Driven Development for Claude Code.** Stop vibe-coding. Start shipping reviewable, auditable software.
+
+SDD-Kit is a suite of 17 Claude Code skills that enforce a structured SDLC: requirements first, planning second, code last. Every feature produces versioned artifacts in `.sdd/` that a human reviews and approves before the next phase starts. The agent never writes implementation code until `tasks.md` is signed off.
 
 ---
 
-## What it is
+## Why
 
-SDD-Kit gives you a set of Claude Code skills that enforce a planning phase before any implementation happens. Every feature goes through the same sequence:
+Claude Code can write code fast. That's the problem. Without guardrails:
 
-```
-init → audit? → constitution → specify → clarify → plan → analyze → test? → tasks → implement → standards → security → review → commit → push
-```
+- Features get built before requirements are understood
+- Architecture decisions happen on the fly, inside a single prompt
+- There's no record of what was agreed — or what changed
+- Security and standards reviews are skipped under time pressure
 
-Complexity-aware: **Trivial** skips straight to implement. **Epic** adds test strategy and spawns parallel agent teams. Bugs use `/sdd-fix` — a dedicated lightweight track.
-
-Each phase produces a versioned artifact in `.sdd/`. You review and approve before the next phase starts. The agent never writes implementation code until `tasks.md` is approved.
+SDD-Kit imposes the phases a senior engineer would enforce anyway: specify, clarify, plan, analyze, then implement. Each phase is a distinct skill. Each produces a file you can read, reject, and iterate on.
 
 ---
 
-## Skills
+## How it works
 
-### Initialisation (stay in SDD-Kit, not copied to projects)
+Every feature follows one of four workflows based on complexity:
+
+```
+Trivial    specify → implement → standards → commit
+
+Feature    specify → clarify → plan → analyze → tasks
+                  → implement → standards → security → review → commit → push
+
+Epic       specify → clarify → plan → analyze → test → tasks (sprint grouping)
+                  → implement (parallel agent teams) → standards → security → review → commit → push
+
+Bug        /sdd-fix (Report → Analyze → Fix → Verify) → commit
+```
+
+Complexity is declared in `spec.md`. The skills guide you to the right workflow automatically.
+
+### Artifacts produced
+
+Each phase writes a file into `.sdd/specs/<NNN>-<slug>/`:
+
+| Phase | File | Contents |
+|---|---|---|
+| Specify | `spec.md` | User stories, acceptance criteria, out-of-scope |
+| Clarify | `clarifications.md` | Resolved ambiguities, updated assumptions |
+| Plan | `plan.md` | Architecture decisions, API contracts, data model |
+| Plan | `research.md` | Version-specific findings from parallel research agent |
+| Analyze | `analysis.md` | Contradictions and gaps between spec, plan, research |
+| Test | `test-strategy.md` | Test plan and coverage targets (Epics only) |
+| Tasks | `tasks.md` | Dependency-ordered tasks with sizing and sprint grouping |
+| Standards | `standards-review.md` | Constitution compliance audit |
+| Security | `security-review.md` | OWASP Top 10 findings |
+| Review | `review.md` | AC coverage check and scope creep detection |
+
+---
+
+## Prerequisites
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated
+- Git (for `/sdd-commit` and `/sdd-push`)
+- [GitHub CLI](https://cli.github.com/) (`gh`) — only needed for `/sdd-push` to open PRs
+
+---
+
+## Getting started
+
+### New project
+
+Open Claude Code in the SDD-Kit directory and run:
+
+```
+/sdd-init
+```
+
+It will ask for your target project path, walk through stack selection, generate a constitution, scaffold the folder structure, and copy the SDLC skills into your project.
+
+Then open your new project in Claude Code and start a feature:
+
+```
+/sdd-specify add user authentication
+```
+
+### Existing project (brownfield)
+
+Audit the codebase first to generate a constitution draft, then install the workflow:
+
+```
+/sdd-audit
+/sdd-install
+```
+
+Or manually copy `.claude/` and `templates/` into your project root and run `/sdd-constitution` to define your standards.
+
+---
+
+## Skills reference
+
+### Initialisation
+
+These skills live in SDD-Kit and are not copied into projects.
 
 | Skill | What it does |
 |---|---|
-| `/sdd-init` | Select your tech stack, scaffold the project, and install the skill suite |
-| `/sdd-install` | Install SDD-Kit into an existing project |
-| `/sdd-audit` | **Brownfield** — analyse existing codebase, generate project.md + constitution draft |
-| `/sdd-constitution` | Set the governing principles, coding standards, and hard constraints |
+| `/sdd-init` | Stack wizard → scaffold → install skills into a new project |
+| `/sdd-install` | Install the SDLC skill suite into an existing project |
+| `/sdd-audit` | Analyse an existing codebase and generate `project.md` + constitution draft |
+| `/sdd-constitution` | Define governing principles, coding standards, and hard constraints |
 
 ### Planning
 
@@ -35,22 +114,22 @@ Each phase produces a versioned artifact in `.sdd/`. You review and approve befo
 |---|---|
 | `/sdd-specify <idea>` | Write a spec with complexity tiering (Trivial / Feature / Epic) |
 | `/sdd-clarify` | Fill in gaps and resolve ambiguities before planning |
-| `/sdd-plan` | Create the technical implementation plan (spawns parallel research agent) |
+| `/sdd-plan` | Create the implementation plan (spawns parallel research agent) |
 | `/sdd-analyze` | Cross-check spec, plan, and research for contradictions |
-| `/sdd-test` | Define the test strategy before task breakdown (required for Epics) |
-| `/sdd-tasks` | Break the plan into a dependency-ordered task list (sprint grouping for Epics) |
+| `/sdd-test` | Define test strategy before task breakdown (required for Epics) |
+| `/sdd-tasks` | Break the plan into a dependency-ordered, sized task list |
 
 ### Development
 
 | Skill | What it does |
 |---|---|
 | `/sdd-implement` | Execute tasks with checkpoints; parallel agent teams for Epics |
-| `/sdd-fix` | **Bug fix track** — Report → Analyze → Fix → Verify (lighter than full workflow) |
-| `/sdd-standards` | Check implementation against coding standards in the constitution |
+| `/sdd-fix` | Lightweight bug fix track: Report → Analyze → Fix → Verify |
+| `/sdd-standards` | Check implementation against the constitution |
 | `/sdd-security` | OWASP Top 10 security review of changed files |
 | `/sdd-review` | Verify what was built matches what was specified |
 | `/sdd-commit` | Generate a structured commit message and PR description |
-| `/sdd-push` | Push branch, worktree-aware, open a pull request |
+| `/sdd-push` | Push branch and open a pull request (worktree-aware) |
 
 ---
 
@@ -61,7 +140,7 @@ Each phase produces a versioned artifact in `.sdd/`. You review and approve befo
 - **Angular** — Angular CLI + TypeScript + Angular Material + NgRx Signals
 
 ### Backend
-- **C# Monolith** — Clean Architecture (jasontaylordev pattern) + MediatR + FluentValidation + EF Core
+- **C# Monolith** — Clean Architecture + MediatR + FluentValidation + EF Core
 - **C# Microservice** — .NET Aspire + YARP + MassTransit + RabbitMQ, with per-service Clean Architecture or Vertical Slice
 - **Node.js** — Express + TypeScript + Prisma + Zod
 
@@ -72,46 +151,18 @@ PostgreSQL · SQL Server · MongoDB · SQLite
 ASP.NET Core Identity · Duende IdentityServer · Auth0/Okta · JWT
 
 ### Deployment patterns
-- **CDN + Separate API** — FE and API deploy independently; CORS always on (industry standard)
-- **.Host Project** — Angular/React compiled into ASP.NET wwwroot, one artifact (enterprise .NET pattern)
-- **API Only** — No frontend in this repo; includes OpenAPI/Scalar and versioning
 
-### Frontend hosting
-Azure Static Web Apps · Vercel · Netlify · AWS S3 + CloudFront · GCP Cloud Storage + CDN
+| Pattern | When to use |
+|---|---|
+| CDN + Separate API | FE and API deploy independently; CORS always on (industry standard) |
+| .Host Project | Angular/React compiled into ASP.NET `wwwroot`, one deployment artifact |
+| API Only | Backend only; includes OpenAPI/Scalar and versioning |
 
-### API / Backend hosting
-Azure App Service · Azure Container Apps · AWS ECS (Fargate) · AWS Lambda · GCP Cloud Run · GCP GKE · Railway · Render
+### Hosting providers
 
----
+**Frontend:** Azure Static Web Apps · Vercel · Netlify · AWS S3 + CloudFront · GCP Cloud Storage + CDN
 
-## Getting started
-
-### On a new project
-
-Open Claude Code in the SDD-Kit directory and run:
-
-```
-/sdd-init
-```
-
-It will ask for the target project path, walk you through stack selection, generate a constitution, scaffold the folder structure, and install the full skill suite into your project automatically.
-
-Then open the new project in Claude Code and start your first feature:
-
-```
-/sdd-specify <your feature idea>
-```
-
-### On an existing project
-
-Run `/sdd-audit` first to analyse the codebase and generate a constitution draft, then install the workflow:
-
-```
-/sdd-audit
-/sdd-install
-```
-
-Or just copy `.claude/` and `templates/` into your project root manually and run `/sdd-constitution` to set the governing principles.
+**Backend:** Azure App Service · Azure Container Apps · AWS ECS (Fargate) · AWS Lambda · GCP Cloud Run · GCP GKE · Railway · Render
 
 ---
 
@@ -120,11 +171,11 @@ Or just copy `.claude/` and `templates/` into your project root manually and run
 ```
 .claude/
 ├── skills/
-│   ├── sdd-init/             group: init  — not copied to projects
+│   ├── sdd-init/             group: init  (not copied to projects)
 │   ├── sdd-install/          group: init
 │   ├── sdd-audit/            group: init
 │   ├── sdd-constitution/     group: init
-│   ├── sdd-specify/          group: sdlc  — copied into every new project
+│   ├── sdd-specify/          group: sdlc  (copied into every project)
 │   ├── sdd-clarify/          group: sdlc
 │   ├── sdd-plan/             group: sdlc
 │   ├── sdd-analyze/          group: sdlc
@@ -149,15 +200,13 @@ templates/
 ├── csharp-monolith/          Clean Architecture reference
 ├── csharp-microservice/      Microservice + per-service patterns
 ├── deployment/               CDN, .Host, and API-only patterns
+├── hosting/                  CI/CD configs for 12 providers
 └── constitutions/            Base coding standards per stack
 
-init-ui/
-└── index.html                Legacy browser stack wizard (superseded by /sdd-init)
-
-.sdd/                         Generated per project (gitignored or committed)
+.sdd/                         Generated per project
 ├── memory/
-│   ├── constitution.md
-│   └── project.md
+│   ├── constitution.md       Project standards and non-negotiables
+│   └── project.md            Tech stack summary
 └── specs/
     └── 001-feature-name/
         ├── spec.md
@@ -165,7 +214,10 @@ init-ui/
         ├── plan.md
         ├── research.md
         ├── analysis.md
+        ├── test-strategy.md
         ├── tasks.md
+        ├── standards-review.md
+        ├── security-review.md
         └── review.md
 ```
 
@@ -175,12 +227,13 @@ init-ui/
 
 | | SDD-Kit | spec-kit | AWS Kiro |
 |---|---|---|---|
-| Skills/commands | ✅ Claude Code skills | ✅ slash commands | ✅ built-in |
-| Subagents | ✅ parallel research + analysis | ❌ | ✅ |
-| Base architecture templates | ✅ per stack | ❌ | ❌ |
-| Base constitutions per stack | ✅ | ❌ | ❌ |
-| Drift review (spec vs code) | ✅ /sdd-review | ❌ | ✅ |
-| Init UI | ✅ browser wizard | ❌ | ✅ IDE |
+| Delivered as | Claude Code skills | slash commands | Built-in |
+| Subagents (parallel research + analysis) | Yes | No | Yes |
+| Architecture templates per stack | Yes | No | No |
+| Constitutions per stack | Yes | No | No |
+| Drift review (spec vs. code) | Yes | No | Yes |
+| Brownfield onboarding | Yes | No | No |
+| Bug fix track | Yes | No | No |
 | Cost | Free | Free | $20–200/mo |
 | IDE lock-in | None | None | VS Code fork |
 
