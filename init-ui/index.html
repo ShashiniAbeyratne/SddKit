@@ -347,7 +347,9 @@
 <!-- ── Step: Auth ─────────────────────────────────────────────────────────── -->
 <div class="card" x-show="currentStepId === 'auth'" x-transition>
   <h2>Authentication</h2>
-  <p class="hint">How will users authenticate?</p>
+  <p class="hint" x-text="state.backend === 'microservice'
+    ? 'For microservices, a centralised token authority is required — all services validate JWTs from one source. ASP.NET Identity + Duende gives you a custom auth service; Keycloak skips writing one entirely.'
+    : 'How will users authenticate?'"></p>
   <div class="options">
     <template x-for="opt in steps.auth.options" :key="opt.value">
       <div class="option" :class="{ selected: state.auth === opt.value }" @click="state.auth = opt.value">
@@ -407,7 +409,7 @@
   <div class="divider"></div>
 
   <!-- Setup command -->
-  <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">1. Run this to create and open the project</p>
+  <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">1. Run this to create the project folder</p>
   <div style="position:relative">
     <pre x-text="setupCmd()"></pre>
     <button class="btn-secondary btn-small"
@@ -431,7 +433,23 @@
 
   <div class="divider"></div>
 
-  <p class="skip-note">3. Open the project in Claude Code and run <code style="color:var(--accent)">/sdd-constitution</code></p>
+  <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">3. Install the SDD-Kit skills into your new project</p>
+  <p style="font-size:0.78rem; color:var(--text-muted); line-height:1.6; margin-bottom:8px;">
+    Back in your <strong style="color:var(--text)">SDD-Kit</strong> Claude Code window, run:
+  </p>
+  <div style="position:relative">
+    <pre x-text="'/sdd-install ' + (fullPath() || '&lt;project-path&gt;')"></pre>
+    <button class="btn-secondary btn-small"
+            style="position:absolute; top:10px; right:10px;"
+            @click="navigator.clipboard.writeText('/sdd-install ' + fullPath())">Copy</button>
+  </div>
+  <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+    Reads your stack from <code style="color:var(--accent)">project.md</code> automatically — no extra questions.
+  </p>
+
+  <div class="divider"></div>
+
+  <p class="skip-note">4. Open the project in Claude Code (<code style="color:var(--accent)">code <span x-text="fullPath() || '&lt;path&gt;'"></span></code>) and run <code style="color:var(--accent)">/sdd-constitution</code></p>
 
   <div class="actions">
     <button class="btn-secondary" @click="back()">← Back</button>
@@ -488,11 +506,12 @@ function wizard() {
       },
       auth: {
         options: [
-          { value: 'none',     icon: '🔓', label: 'None',                    desc: 'No authentication' },
-          { value: 'identity', icon: '👤', label: 'ASP.NET Core Identity',   desc: 'Built-in user management — simple login/register, roles, no SSO needed' },
-          { value: 'duende',   icon: '🏢', label: 'Duende IdentityServer',   desc: 'Full OAuth2 / OIDC — multiple clients, SSO, external identity providers' },
-          { value: 'auth0',    icon: '🌐', label: 'Auth0 / Okta',            desc: 'Managed auth provider — fastest path to production, handles everything externally' },
-          { value: 'jwt',      icon: '🔑', label: 'JWT only',                desc: 'Stateless Bearer tokens — API-to-API or mobile clients, no session management' },
+          { value: 'none',             icon: '🔓', label: 'None',                                        desc: 'No authentication' },
+          { value: 'identity+duende',  icon: '🔐', label: 'ASP.NET Identity + Duende IdentityServer',    desc: 'Custom auth service: Identity manages the user store, Duende issues OAuth2/OIDC tokens to all services. The correct combination for microservices.', badge: 'Microservice', badgeStyle: 'standard' },
+          { value: 'keycloak',         icon: '🗝️', label: 'Keycloak',                                    desc: 'Open-source OIDC server as a Docker container — no custom auth code, battle-tested, widely used in enterprise. Your services validate its JWTs.' },
+          { value: 'identity',         icon: '👤', label: 'ASP.NET Core Identity',                       desc: 'Built-in user management — simple login/register, roles, no SSO needed. Fine for monoliths; not sufficient alone for microservices.' },
+          { value: 'auth0',            icon: '🌐', label: 'Auth0 / Okta',                                desc: 'Managed auth provider — fastest path to production, handles everything externally' },
+          { value: 'jwt',              icon: '🔑', label: 'JWT only',                                    desc: 'Stateless Bearer tokens — API-to-API or mobile clients, no session management' },
         ],
       },
       deploy: {
@@ -516,7 +535,7 @@ function wizard() {
       frontend:   { none: 'None', react: '⚛️ React', angular: '🅰️ Angular' },
       backend:    { none: 'None', monolith: '🏛️ C# Monolith', microservice: '🔬 C# Microservice', node: '🟩 Node.js' },
       database:   { none: 'None', postgres: '🐘 PostgreSQL', sqlserver: '🗄️ SQL Server', mongodb: '🍃 MongoDB', sqlite: '📦 SQLite' },
-      auth:       { none: 'None', identity: '👤 ASP.NET Identity', duende: '🏢 Duende IdentityServer', auth0: '🌐 Auth0/Okta', jwt: '🔑 JWT' },
+      auth:       { none: 'None', 'identity+duende': '🔐 ASP.NET Identity + Duende', keycloak: '🗝️ Keycloak', identity: '👤 ASP.NET Identity', auth0: '🌐 Auth0/Okta', jwt: '🔑 JWT' },
       deployment: { cdn: '🌍 CDN + Separate API', host: '🏠 .Host Project' },
     },
 
@@ -574,7 +593,6 @@ function wizard() {
           `cd "${path}"`,
           `git init`,
           `mkdir .sdd\\memory`,
-          `code .`,
         ].join('\n');
       } else {
         return [
@@ -582,7 +600,6 @@ function wizard() {
           `cd "${path}"`,
           `git init`,
           `mkdir -p .sdd/memory`,
-          `code .`,
         ].join('\n');
       }
     },
@@ -607,7 +624,7 @@ function wizard() {
       const fl = { none: 'None', react: 'React (Vite + TypeScript + TailwindCSS + React Router + Zustand)', angular: 'Angular (CLI + TypeScript + Angular Material + NgRx Signals)' };
       const bl = { none: 'None', monolith: 'C# Monolith — Clean Architecture (jasontaylordev)', microservice: 'C# Microservice (.NET Aspire + YARP + MassTransit)', node: 'Node.js (Express + TypeScript + Prisma)' };
       const dl = { none: 'None', postgres: 'PostgreSQL', sqlserver: 'SQL Server', mongodb: 'MongoDB', sqlite: 'SQLite (dev only)' };
-      const al = { none: 'None', identity: 'ASP.NET Core Identity', duende: 'Duende IdentityServer (OAuth2/OIDC)', auth0: 'Auth0 / Okta', jwt: 'JWT only' };
+      const al = { none: 'None', 'identity+duende': 'ASP.NET Core Identity + Duende IdentityServer (custom OAuth2/OIDC auth service)', keycloak: 'Keycloak (OIDC server — Docker container)', identity: 'ASP.NET Core Identity', auth0: 'Auth0 / Okta', jwt: 'JWT only' };
       const pl = { cdn: 'CDN + Separate API (FE on CDN, API on app server)', host: '.Host Project (ClientApp → wwwroot, one artifact)' };
       const archl = { clean: 'Clean Architecture', vertical: 'Vertical Slice', hybrid: 'Hybrid' };
 

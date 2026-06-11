@@ -66,8 +66,9 @@
 ## Per-Service Architecture Choices
 
 See separate template files for internal structure:
-- `clean-architecture-service.md` — for services with complex domain logic
+- `clean-architecture-service.md` — for services with complex domain logic (includes event sourcing pattern)
 - `vertical-slice-service.md` — for CRUD-heavy or simple event-driven services
+- `saga-pattern.md` — for multi-step cross-service workflows with compensation (orchestration-style)
 
 ### Which to choose:
 
@@ -77,7 +78,7 @@ See separate template files for internal structure:
 | Multiple workflow steps, long transactions | Clean Architecture |
 | CRUD operations, simple state machine | Vertical Slice |
 | Event-driven, notification-style | Vertical Slice |
-| Off-the-shelf (Auth, Identity) | Duende IdentityServer (no internal structure needed) |
+| Auth service (custom token authority) | ASP.NET Core Identity (user store) + Duende IdentityServer (token issuance) — one dedicated service, no complex internal structure needed |
 
 ## API Gateway (YARP)
 

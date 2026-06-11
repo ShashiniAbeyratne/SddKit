@@ -1,7 +1,7 @@
 ---
 name: sdd-constitution
 description: Establish or update the governing principles for this project. Use when the user says "constitution", "principles", starts a new project, or before the first feature.
-group: init
+group: sdlc
 disable-model-invocation: true
 ---
 

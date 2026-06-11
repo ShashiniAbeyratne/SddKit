@@ -9,19 +9,23 @@ Use this skill to install the SDD-Kit workflow into an **existing** project that
 
 For new projects, use `/sdd-init` instead — it handles scaffolding and installation together.
 
-## Step 1 — Gather info
+## Step 1 — Determine the target path
 
-Ask the following, one at a time:
+If a path was passed as an argument (e.g. `/sdd-install C:\Users\you\Projects\MyApp`), use it directly.
 
-1. What is the absolute path to the project you want to install SDD-Kit into?
-   (e.g. `C:\Users\you\Projects\MyApp` or `/Users/you/Projects/MyApp`)
+Otherwise ask: "What is the absolute path to the project you want to install SDD-Kit into?"
 
-2. What is the tech stack? (so I can copy the right templates and constitution base)
-   - Frontend: React / Angular / None
-   - Backend: C# Monolith / C# Microservice / Node.js / None
-   - Deployment pattern (if FE + BE): CDN+API / .Host / API only
+## Step 2 — Read stack from project.md (if it exists)
 
-## Step 2 — Confirm
+Check if `<target_path>/.sdd/memory/project.md` exists.
+
+- **If it does:** read it to extract Frontend, Backend, and Deployment pattern. Skip asking for the stack.
+- **If it doesn't:** ask for the tech stack:
+  - Frontend: React / Angular / None
+  - Backend: C# Monolith / C# Microservice / Node.js / None
+  - Deployment pattern (if FE + BE): CDN+API / .Host / API only
+
+## Step 3 — Confirm
 
 Show the user a summary:
 ```
@@ -34,14 +38,14 @@ Existing files will NOT be overwritten.
 
 Ask for confirmation before proceeding.
 
-## Step 3 — Spawn project-installer agent
+## Step 4 — Spawn project-installer agent
 
 Spawn the `project-installer` agent (`.claude/agents/project-installer.md`) with:
-- `target_path`: the path the user provided
+- `target_path`: the resolved path
 - `sddkit_path`: the directory where this skill lives (parent of `.claude/`)
-- `stack`: the stack choices from Step 1
+- `stack`: the stack choices from Step 2
 
-## Step 4 — Wrap up
+## Step 5 — Wrap up
 
 After the agent completes:
 - Report what was installed

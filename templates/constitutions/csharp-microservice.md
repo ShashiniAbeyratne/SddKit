@@ -27,6 +27,38 @@
 - Event names never change once published to production (versioning strategy required for breaking changes)
 - All consumers are idempotent — processing the same message twice must be safe
 
+### Domain events vs integration events (mandatory distinction)
+These are two different things and must not be confused:
+
+| | Domain Event | Integration Event |
+|---|---|---|
+| Scope | In-process, single service only | Cross-service, travels via RabbitMQ |
+| Transport | MediatR (`INotification`) | MassTransit (`IPublishEndpoint`) |
+| Timing | Raised by aggregate, dispatched after `SaveChanges` | Published by a domain event handler |
+| Example | `LoanApprovedDomainEvent` | `LoanApprovedIntegrationEvent` |
+
+Flow: aggregate raises domain event → MediatR handler catches it → publishes integration event to RabbitMQ → other services consume it.
+
+Domain events never leave the service. Integration events never directly reference domain objects.
+
+### Outbox pattern (mandatory for all event-publishing services)
+Publishing a message and saving to the DB must be atomic. Without the outbox, a crash between `SaveChanges` and `Publish` loses the event permanently.
+
+Use MassTransit's built-in outbox:
+
+```csharp
+services.AddMassTransit(x =>
+{
+    x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+    {
+        o.UseSqlServer();
+        o.UseBusOutbox(); // publishes after SaveChanges commits — not before
+    });
+});
+```
+
+**Rule:** Any service that publishes integration events must configure the outbox. No exceptions.
+
 ### Per-service architecture
 - Complex domain logic → Clean Architecture (see `csharp-monolith.md` standards, applied per-service)
 - CRUD / event-driven → Vertical Slice (one file per feature)
@@ -43,6 +75,7 @@
 - Connection strings and service URLs come from Aspire resource references — no hardcoded URLs
 
 ### Testing
+- **Libraries:** xUnit (test runner), FluentAssertions (readable assertions), NSubstitute (mocking — not Moq), Testcontainers (real DB + RabbitMQ in integration tests)
 - Unit tests per service following the per-service architecture pattern
 - Integration tests use Testcontainers for real DB + real RabbitMQ — no mocked messaging
 - Contract tests for shared message types (verify producer and consumer agree on the schema)

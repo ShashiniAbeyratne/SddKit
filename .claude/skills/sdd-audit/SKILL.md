@@ -1,7 +1,7 @@
 ---
 name: sdd-audit
 description: Brownfield bootstrap — analyse an existing codebase and generate project.md and a constitution draft. Use when the user says "audit this project", "I have an existing project", "add SDD to existing code", or after /sdd-install on a brownfield project.
-group: init
+group: sdlc
 disable-model-invocation: true
 ---
 

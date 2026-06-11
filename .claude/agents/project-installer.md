@@ -37,6 +37,8 @@ CLAUDE.md
 All skills now live flat in `<sddkit_path>/.claude/skills/`. Each SKILL.md has a `group:` frontmatter field — copy only skills where `group: sdlc`.
 
 Skills to copy (`group: sdlc`):
+- sdd-constitution/ (+ constitution-template.md)
+- sdd-audit/
 - sdd-specify/      (+ spec-template.md, quality-checklist.md)
 - sdd-clarify/
 - sdd-plan/         (+ plan-template.md)
@@ -51,7 +53,7 @@ Skills to copy (`group: sdlc`):
 - sdd-commit/
 - sdd-push/
 
-Do NOT copy skills where `group: init` (sdd-init, sdd-install, sdd-constitution, sdd-audit) — those are SDD-Kit bootstrappers, not project SDLC skills.
+Do NOT copy skills where `group: init` (sdd-init, sdd-install only) — those are SDD-Kit-only bootstrappers for creating and installing into projects.
 
 ### 3. Copy hooks
 
