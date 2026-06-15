@@ -3,18 +3,23 @@
 **Use for:** Services with complex business logic, rich domain models, multi-step workflows
 **Examples:** LoanApplication, RiskScoring, OrderManagement, Payments
 
-## Structure
+## Project Structure
+
+Each Clean Architecture service is a **multi-project .NET solution**. Layers are separate `.csproj` files — not folders inside one project. This enforces dependency direction at **compile time**.
 
 ```
-[ServiceName].Service/
+[service-name]/                        ← kebab-case service folder
+├── [ServiceName].sln                  ← per-service solution (open this to work on one service)
+│
 ├── [ServiceName].Domain/
+│   ├── [ServiceName].Domain.csproj   ← class library, NO project references
 │   ├── Common/
 │   │   ├── BaseEntity.cs
 │   │   └── BaseAuditableEntity.cs
 │   ├── Entities/
 │   │   └── [EntityName].cs            ← rich domain entity with behaviour methods
 │   ├── Events/
-│   │   └── [Entity]CreatedEvent.cs    ← domain events
+│   │   └── [Entity]CreatedEvent.cs    ← domain events (MediatR INotification)
 │   ├── ValueObjects/
 │   │   └── Money.cs                   ← immutable value objects
 │   ├── Enums/
@@ -22,6 +27,7 @@
 │       └── DomainException.cs
 │
 ├── [ServiceName].Application/
+│   ├── [ServiceName].Application.csproj   ← refs Domain only
 │   ├── Common/
 │   │   ├── Behaviours/
 │   │   │   ├── ValidationBehaviour.cs
@@ -29,7 +35,6 @@
 │   │   └── Interfaces/
 │   │       ├── IApplicationDbContext.cs
 │   │       └── ICurrentUserService.cs
-│   │
 │   └── Features/
 │       └── [FeatureName]/
 │           ├── Commands/
@@ -43,11 +48,12 @@
 │           │       ├── Get[Entity]QueryHandler.cs
 │           │       └── [Entity]Dto.cs
 │           └── EventHandlers/
-│               └── [ExternalEvent]Handler.cs  ← MassTransit consumer
+│               └── [ExternalEvent]Handler.cs
 │
 ├── [ServiceName].Infrastructure/
+│   ├── [ServiceName].Infrastructure.csproj   ← refs Application only
 │   ├── Data/
-│   │   ├── [ServiceName]DbContext.cs   ← service-owned DB — not shared
+│   │   ├── [ServiceName]DbContext.cs
 │   │   └── Migrations/
 │   ├── Messaging/
 │   │   ├── Consumers/
@@ -56,36 +62,221 @@
 │   └── Services/
 │       └── [External]ServiceClient.cs
 │
-└── [ServiceName].API/
-    ├── Endpoints/                      ← Minimal API preferred in .NET 8+
-    │   └── [Resource]Endpoints.cs
-    ├── Middleware/
-    │   └── ExceptionHandlingMiddleware.cs
-    ├── Program.cs
-    └── appsettings.json
-
-tests/
-├── [ServiceName].UnitTests/
-│   └── Features/
-│       └── [FeatureName]/
-│           └── Commands/
-├── [ServiceName].IntegrationTests/    ← real DB via Testcontainers
-└── [ServiceName].ArchitectureTests/   ← NetArchTest rules (enforce layer deps)
+├── [ServiceName].API/
+│   ├── [ServiceName].API.csproj   ← refs Application + Infrastructure (NOT Domain directly)
+│   ├── Endpoints/
+│   │   └── [Resource]Endpoints.cs
+│   ├── Middleware/
+│   │   └── ExceptionHandlingMiddleware.cs
+│   ├── Program.cs
+│   └── appsettings.json
+│
+└── tests/
+    ├── [ServiceName].UnitTests/
+    │   └── [ServiceName].UnitTests.csproj   ← refs Domain, Application
+    ├── [ServiceName].IntegrationTests/      ← real DB via Testcontainers
+    │   └── [ServiceName].IntegrationTests.csproj   ← refs API
+    └── [ServiceName].ArchitectureTests/     ← NetArchTest rules
+        ├── [ServiceName].ArchitectureTests.csproj   ← refs all 4 layers
+        └── LayerDependencyTests.cs
 ```
 
-## Architecture Test (enforce dependency rule)
+## Project File Contents
+
+### [ServiceName].Domain.csproj
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>[TargetFramework]</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <!-- NO PackageReference or ProjectReference — Domain has zero dependencies -->
+</Project>
+```
+
+### [ServiceName].Application.csproj
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>[TargetFramework]</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\[ServiceName].Domain\[ServiceName].Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.*" />
+    <PackageReference Include="FluentValidation" Version="11.*" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[MajorVersion].*" />
+  </ItemGroup>
+</Project>
+```
+
+### [ServiceName].Infrastructure.csproj
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>[TargetFramework]</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\[ServiceName].Application\[ServiceName].Application.csproj" />
+    <!-- NO Domain reference — Infrastructure talks to Application via interfaces -->
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[MajorVersion].*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="[MajorVersion].*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.*" />
+  </ItemGroup>
+</Project>
+```
+
+### [ServiceName].API.csproj
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>[TargetFramework]</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\[ServiceName].Application\[ServiceName].Application.csproj" />
+    <ProjectReference Include="..\[ServiceName].Infrastructure\[ServiceName].Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\..\app-host\[ProjectName].ServiceDefaults\[ProjectName].ServiceDefaults.csproj" />
+    <!-- NO Domain reference — API only talks to Application -->
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="[MajorVersion].*" />
+    <PackageReference Include="Scalar.AspNetCore" Version="1.*" />
+  </ItemGroup>
+</Project>
+```
+
+### [ServiceName].ArchitectureTests.csproj
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>[TargetFramework]</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\[ServiceName].Domain\[ServiceName].Domain.csproj" />
+    <ProjectReference Include="..\..\[ServiceName].Application\[ServiceName].Application.csproj" />
+    <ProjectReference Include="..\..\[ServiceName].Infrastructure\[ServiceName].Infrastructure.csproj" />
+    <ProjectReference Include="..\..\[ServiceName].API\[ServiceName].API.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" Version="3.*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="NetArchTest.Rules" Version="1.*" />
+  </ItemGroup>
+</Project>
+```
+
+## Dependency Direction (enforced by project references)
+
+```
+API → Application → Domain
+         ↓
+  Infrastructure → Application
+```
+
+The compiler enforces this. If Domain accidentally imports Infrastructure, it **won't compile** because there is no project reference. NetArchTest is a second layer — not the first.
+
+## Architecture Test (LayerDependencyTests.cs)
 
 ```csharp
-[Fact]
-public void Domain_Should_Not_HaveDependencyOn_Application()
-{
-    var result = Types.InAssembly(DomainAssembly)
-        .Should().NotHaveDependencyOn(ApplicationNamespace)
-        .GetResult();
+using System.Reflection;
+using NetArchTest.Rules;
 
-    result.IsSuccessful.Should().BeTrue();
+namespace [ServiceName].ArchitectureTests;
+
+public class LayerDependencyTests
+{
+    // Assembly.LoadFrom works because ProjectReference copies DLLs to output dir
+    private static Assembly LoadAssembly(string name) =>
+        Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, $"{name}.dll"));
+
+    private static readonly Assembly DomainAssembly = LoadAssembly("[ServiceName].Domain");
+    private static readonly Assembly ApplicationAssembly = LoadAssembly("[ServiceName].Application");
+    private static readonly Assembly InfrastructureAssembly = LoadAssembly("[ServiceName].Infrastructure");
+
+    [Fact]
+    public void Domain_Should_Not_Reference_Application() =>
+        Assert.True(Types.InAssembly(DomainAssembly)
+            .Should().NotHaveDependencyOn("[ServiceName].Application")
+            .GetResult().IsSuccessful);
+
+    [Fact]
+    public void Domain_Should_Not_Reference_Infrastructure() =>
+        Assert.True(Types.InAssembly(DomainAssembly)
+            .Should().NotHaveDependencyOn("[ServiceName].Infrastructure")
+            .GetResult().IsSuccessful);
+
+    [Fact]
+    public void Application_Should_Not_Reference_Infrastructure() =>
+        Assert.True(Types.InAssembly(ApplicationAssembly)
+            .Should().NotHaveDependencyOn("[ServiceName].Infrastructure")
+            .GetResult().IsSuccessful);
+
+    [Fact]
+    public void Infrastructure_Should_Not_Reference_API() =>
+        Assert.True(Types.InAssembly(InfrastructureAssembly)
+            .Should().NotHaveDependencyOn("[ServiceName].API")
+            .GetResult().IsSuccessful);
 }
 ```
+
+## Solution File ([ServiceName].sln)
+
+```
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "[ServiceName].Domain", "[ServiceName].Domain\[ServiceName].Domain.csproj", "{GUID-1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "[ServiceName].Application", "[ServiceName].Application\[ServiceName].Application.csproj", "{GUID-2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "[ServiceName].Infrastructure", "[ServiceName].Infrastructure\[ServiceName].Infrastructure.csproj", "{GUID-3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "[ServiceName].API", "[ServiceName].API\[ServiceName].API.csproj", "{GUID-4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{GUID-FOLDER}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "[ServiceName].UnitTests", "tests\[ServiceName].UnitTests\[ServiceName].UnitTests.csproj", "{GUID-5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "[ServiceName].IntegrationTests", "tests\[ServiceName].IntegrationTests\[ServiceName].IntegrationTests.csproj", "{GUID-6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "[ServiceName].ArchitectureTests", "tests\[ServiceName].ArchitectureTests\[ServiceName].ArchitectureTests.csproj", "{GUID-7}"
+EndProject
+Global
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        Debug|Any CPU = Debug|Any CPU
+        Release|Any CPU = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(NestedProjects) = preSolution
+        {GUID-5} = {GUID-FOLDER}
+        {GUID-6} = {GUID-FOLDER}
+        {GUID-7} = {GUID-FOLDER}
+    EndGlobalSection
+EndGlobal
+```
+
+Generate unique GUIDs for each project. Use `[System.Guid]::NewGuid()` (PowerShell) or any GUID generator.
+
+---
 
 ## Event Sourcing (selective — use only where audit trail is a business requirement)
 

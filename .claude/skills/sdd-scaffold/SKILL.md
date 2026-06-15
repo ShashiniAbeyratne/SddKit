@@ -62,6 +62,27 @@ After getting answers, append a `## Hosting` section to `.sdd/memory/project.md`
 
 ---
 
+## Step 2.5 — Target framework (.NET only)
+
+Skip this step entirely if the backend is None or non-.NET.
+
+Check if `project.md` already has a `## Target Framework` section. If it does, use that value and skip to Step 3.
+
+If not:
+1. State what you know about the current .NET release landscape based on today's date. Example: "Based on today's date (June 2026), the current .NET releases are: **net10.0** (LTS, current recommended) | net9.0 (STS) | net8.0 (LTS)"
+2. Ask the user: "Which .NET target framework should the scaffold use? Press Enter to accept the latest LTS, or type a specific TFM (e.g. `net9.0`, `net8.0`)."
+3. If the user presses Enter or says "default" / "latest" / "LTS", use the latest stable LTS you identified.
+
+After getting the answer, append to `.sdd/memory/project.md`:
+```markdown
+## Target Framework
+- .NET: [chosen TFM, e.g. net10.0]
+```
+
+Pass `TargetFramework: [chosen TFM]` to the scaffold-generator in Step 4.
+
+---
+
 ## Step 3 — Read architecture and hosting templates
 
 Read the following from the local `templates/` folder based on the stack in `project.md`:
@@ -116,6 +137,7 @@ Spawn the `scaffold-generator` agent (`.claude/agents/scaffold-generator.md`) an
 - Deployment pattern (from project.md)
 - Frontend hosting provider (from Step 2)
 - API hosting provider (from Step 2)
+- **Target framework** (from Step 2.5 — e.g. `net10.0`) — omit if non-.NET
 - Full content of every architecture template read in Step 3
 - Full content of every hosting template read in Step 3
 - Project name (from project.md)
