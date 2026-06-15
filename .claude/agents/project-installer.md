@@ -39,6 +39,7 @@ All skills now live flat in `<sddkit_path>/.claude/skills/`. Each SKILL.md has a
 Skills to copy (`group: sdlc`):
 - sdd-constitution/ (+ constitution-template.md)
 - sdd-audit/
+- sdd-scaffold/     ← generates folder structure from project.md + hosting templates
 - sdd-specify/      (+ spec-template.md, quality-checklist.md)
 - sdd-clarify/
 - sdd-plan/         (+ plan-template.md)
@@ -82,6 +83,7 @@ Create `<target_path>/templates/` and copy only the templates relevant to the se
 - If C# Monolith: `templates/csharp-monolith/architecture.md`
 - If C# Microservice: `templates/csharp-microservice/` (all files)
 - If deployment pattern selected: the relevant `templates/deployment/<pattern>.md`
+- Always copy: `templates/hosting/` (all files) — required by `/sdd-scaffold` to generate CI/CD and hosting config files
 
 ### 8. Copy constitution memory
 
